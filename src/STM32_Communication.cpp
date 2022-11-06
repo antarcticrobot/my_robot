@@ -103,7 +103,7 @@ void publish_odomtery(float position_x, float position_z, float oriention,
                       float vel_linear_x, float vel_linear_z,
                       float vel_angular_w);
 void for_show_2022_1106(int count);
-void send_cam_flag(string data);
+void send_cam_flag(bool flag);
 
 int main(int argc, char **argv)
 {
@@ -214,7 +214,7 @@ int main(int argc, char **argv)
 
     if (fixedPointSwitches[0] == false)
     {
-      send_cam_flag("END");
+      send_cam_flag(false);
       
       // send_to_moto(1, 1, 400, count % 2 < 1);
       // send_to_moto(2, 1, 10, count % 2 < 1);
@@ -223,7 +223,7 @@ int main(int argc, char **argv)
     }
     else
     {
-      send_cam_flag("START");
+      send_cam_flag(true);
 
       // send_to_moto(1, 0, 0);
       // send_to_moto(2, 1, 20, count % 2 < 1);
@@ -250,11 +250,11 @@ int main(int argc, char **argv)
   ros::shutdown();
   return 1;
 }
-//简化相机信号发送，提取出send_cam_flag(string data)
-void send_cam_flag(string data)
+//简化相机信号发送，提取出send_cam_flag(bool flag)
+void send_cam_flag(bool flag)
 {
   std_msgs::String msg;
-  msg.data = "END";
+  msg.data = flag ? "START" : "END";
   ROS_INFO("%s", msg.data.c_str());
   chatter_pub.publish(msg); //向所有订阅 chatter 话题的节点发送消息。
 }
