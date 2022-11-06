@@ -212,8 +212,6 @@ int main(int argc, char **argv)
 
     for_show_2022_1106(count);
 
-    // send_to_moto(0, 0, 1000);
-    // send_to_moto(2, 0, 5);
 
     // if (fixedPointSwitches[0] == false)
     // {
