@@ -107,7 +107,6 @@ void send_cam_flag(bool flag);
 
 int main(int argc, char **argv)
 {
-  string out_result;
   bool uart_recive_flag;
   string sub_cmdvel_topic, pub_odom_topic, dev;
   int buad, time_out, hz;
@@ -126,7 +125,6 @@ int main(int argc, char **argv)
   ros::Subscriber command_sub = n.subscribe(sub_cmdvel_topic, 10, cmd_vel_callback);
   odom_pub = n.advertise<nav_msgs::Odometry>(pub_odom_topic, 20);
   chatter_pub = n.advertise<std_msgs::String>("/chatter", 1000);
-  std_msgs::String msg;
 
   // 开启串口模块
   try
@@ -215,7 +213,7 @@ int main(int argc, char **argv)
     if (fixedPointSwitches[0] == false)
     {
       send_cam_flag(false);
-      
+
       // send_to_moto(1, 1, 400, count % 2 < 1);
       // send_to_moto(2, 1, 10, count % 2 < 1);
       send_to_moto(0, 1, 2000, count % 2 < 1);
@@ -267,7 +265,7 @@ void for_show_2022_1106(int count)
   if (stage < stepLen * 2)
   {
     send_to_moto(0, 1, 0);
-    send_to_moto(1, 1, 400, stage > stepLen * 1);
+    send_to_moto(1, 1, 400, stage < stepLen * 1);
     send_to_moto(2, 1, 0);
   }
   else if (stage < stepLen * 4)
@@ -278,7 +276,7 @@ void for_show_2022_1106(int count)
   }
   else
   {
-    // send_to_moto(0, 0, 0);
+    send_to_moto(0, 1, 0);
     send_to_moto(1, 1, 0);
     send_to_moto(2, 1, 5, stage < stepLen * 4.5);
   }
@@ -286,30 +284,22 @@ void for_show_2022_1106(int count)
 
 void cmd_vel_callback(const geometry_msgs::Twist::ConstPtr &msg)
 {
-  // ROS_INFO_STREAM("Write to serial port" << msg->data);
-  // ostringstream os;
   float speed_x, speed_z, speed_w;
-  float vel[4];
-  // os<<"speed_x:"<<msg->linear.x<<"      speed_y:"<<msg->linear.y<<"
-  // speed_w:"<<msg->angular.z<<'\n';
-  // cout<<os.str()<<endl;
-  // send_speed_to_chassis(msg->linear.x*10,msg->linear.y*10,msg->angular.z*2);
-
   speed_x = msg->linear.x;
   speed_z = msg->linear.z;
   speed_w = msg->angular.z;
 
+  float vel[4];
   vel[0] = speed_z; //左边 //转化为每个轮子的线速度
   vel[1] = speed_x;
   vel[2] = speed_w;
+
   for (int i = 0; i < 4; i++)
   {
     vel[i] = vel[i] / (WHEEL_D[i] * WHEEL_PI); //转换为轮子的速度　RPM
     vel[i] = vel[i] * RATIO[i] * 60;           //转每秒转换到RPM
   }
 
-  // send_rpm_to_chassis(vel[0], vel[1], vel[2], vel[3]);
-  // send_rpm_to_chassis(200,200,200,200);
   for (int i = 0; i < 4; i++)
   {
     if (vel[i] >= 0)
@@ -318,11 +308,8 @@ void cmd_vel_callback(const geometry_msgs::Twist::ConstPtr &msg)
       send_to_moto(i, 1, -vel[i] * 0.1, false);
   }
 
-  ROS_INFO_STREAM("504test");
-  ROS_INFO_STREAM("vel[0]: " << vel[0] << " vel[1]: " << vel[1] << " vel[2]: "
-                             << vel[2] << " vel[3]: " << vel[3]);
-  ROS_INFO_STREAM("speed_x:" << msg->linear.x << " speed_z:" << msg->linear.z
-                             << " speed_w:" << msg->angular.z);
+  ROS_INFO_STREAM("vel[0]: " << vel[0] << " vel[1]: " << vel[1] << " vel[2]: " << vel[2] << " vel[3]: " << vel[3]);
+  ROS_INFO_STREAM("speed_x:" << msg->linear.x << " speed_z:" << msg->linear.z << " speed_w:" << msg->angular.z);
 }
 
 void send_speed_to_chassis(float x, float y, float w) {}
