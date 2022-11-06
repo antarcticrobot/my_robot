@@ -103,6 +103,7 @@ void publish_odomtery(float position_x, float position_z, float oriention,
                       float vel_linear_x, float vel_linear_z,
                       float vel_angular_w);
 void for_show_2022_1106(int count);
+void send_cam_flag(bool flag);
 
 int main(int argc, char **argv)
 {
@@ -179,10 +180,9 @@ int main(int argc, char **argv)
   ROS_INFO_STREAM("clear odometry successful(mickx4_bringup.cpp) !");
   int count = 0;
   int temp = 0;
-  
+
   while (ros::ok())
   {
-    std_msgs::String msg;
     if (ros_ser.available())
     {
       std_msgs::String serial_data;
@@ -212,33 +212,28 @@ int main(int argc, char **argv)
 
     for_show_2022_1106(count);
 
-    // send_to_moto(0, 0, 1000);
-    // send_to_moto(2, 0, 5);
+    if (fixedPointSwitches[0] == false)
+    {
+      send_cam_flag(false);
+      
+      // send_to_moto(1, 1, 400, count % 2 < 1);
+      // send_to_moto(2, 1, 10, count % 2 < 1);
+      send_to_moto(0, 1, 2000, count % 2 < 1);
+      switches[0][0] = switches[0][1] = false;
+    }
+    else
+    {
+      send_cam_flag(true);
 
-    // if (fixedPointSwitches[0] == false)
-    // {
-    //   msg.data = "END";
-    //   ROS_INFO("%s", msg.data.c_str());
-    //   chatter_pub.publish(msg);//向所有订阅 chatter 话题的节点发送消息。
-    //   // send_to_moto(1, 1, 400, count % 2 < 1);
-    //   // send_to_moto(2, 1, 10, count % 2 < 1);
-    //   send_to_moto(0, 1, 2000, count % 2 < 1);
-    //   switches[0][0] = switches[0][1] = false;
-    // }
-    // else
-    // {
-    //   msg.data = "START";
-    //   ROS_INFO("%s", msg.data.c_str());
-    //   chatter_pub.publish(msg);//向所有订阅 chatter 话题的节点发送消息。
-    //   // send_to_moto(1, 0, 0);
-    //   // send_to_moto(2, 1, 20, count % 2 < 1);
-    //   if (switches[0][0] == false)
-    //     send_to_moto(0, 1, 2500, false);
-    //   else if (switches[0][1] == false)
-    //   {
-    //     send_to_moto(0, 1, 2500);
-    //   }
-    // }
+      // send_to_moto(1, 0, 0);
+      // send_to_moto(2, 1, 20, count % 2 < 1);
+      if (switches[0][0] == false)
+        send_to_moto(0, 1, 2500, false);
+      else if (switches[0][1] == false)
+      {
+        send_to_moto(0, 1, 2500);
+      }
+    }
 
     temp++;
     if (temp == 200)
@@ -254,6 +249,14 @@ int main(int argc, char **argv)
   ros::waitForShutdown();
   ros::shutdown();
   return 1;
+}
+//简化相机信号发送，提取出send_cam_flag(bool flag)
+void send_cam_flag(bool flag)
+{
+  std_msgs::String msg;
+  msg.data = flag ? "START" : "END";
+  ROS_INFO("%s", msg.data.c_str());
+  chatter_pub.publish(msg); //向所有订阅 chatter 话题的节点发送消息。
 }
 
 //最基础的展示，只是为了2022-1106的SRTP拍摄
