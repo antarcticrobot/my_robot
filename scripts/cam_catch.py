@@ -11,7 +11,7 @@ import rospy
 from ctypes import *
 from std_msgs.msg import String
 
-sys.path.append("/home/yr/catkin_ws/src/my_robot/scripts/MvImport")
+sys.path.append("/home/robot/catkin_ws/src/my_robot/scripts/MvImport")
 from MvCameraControl_class import *
  
 g_bExit = False
@@ -42,7 +42,7 @@ def work_thread_rgb82bgr(cam=0, pData=0, nDataSize=0):
     memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
     while True:        
         ret = cam.MV_CC_GetOneFrameTimeout(pData, nDataSize, stFrameInfo, 1000)
-        # print('----', stFrameInfo.enPixelType)
+        print('----', stFrameInfo.enPixelType)
         if ret == 0:    
             if stFrameInfo.enPixelType=='PixelType_Gvsp_RGB8_Packed':
                 print('stFrameInfo.enPixelType==PixelType_Gvsp_RGB8_Packed')
@@ -52,7 +52,7 @@ def work_thread_rgb82bgr(cam=0, pData=0, nDataSize=0):
             temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
 
             if flag==True:
-                filepath = "/home/yr/MVS_Pictures/"+datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
+                filepath = "/home/robot/MVS_Pictures/"+datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
                 if not os.path.exists(filepath):
                     os.makedirs(filepath)
                 filename = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d-%H-%M-%S')

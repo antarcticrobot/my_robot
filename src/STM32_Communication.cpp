@@ -210,28 +210,28 @@ int main(int argc, char **argv)
 
     for_show_2022_1106(count);
 
-    if (fixedPointSwitches[0] == false)
-    {
-      send_cam_flag(false);
+    // if (fixedPointSwitches[0] == false)
+    // {
+    //   send_cam_flag(false);
 
-      // send_to_moto(1, 1, 400, count % 2 < 1);
-      // send_to_moto(2, 1, 10, count % 2 < 1);
-      send_to_moto(0, 1, 2000, count % 2 < 1);
-      switches[0][0] = switches[0][1] = false;
-    }
-    else
-    {
-      send_cam_flag(true);
+    //   // send_to_moto(1, 1, 400, count % 2 < 1);
+    //   // send_to_moto(2, 1, 10, count % 2 < 1);
+    //   send_to_moto(0, 1, 2000, count % 2 < 1);
+    //   switches[0][0] = switches[0][1] = false;
+    // }
+    // else
+    // {
+    //   send_cam_flag(true);
 
-      // send_to_moto(1, 0, 0);
-      // send_to_moto(2, 1, 20, count % 2 < 1);
-      if (switches[0][0] == false)
-        send_to_moto(0, 1, 2500, false);
-      else if (switches[0][1] == false)
-      {
-        send_to_moto(0, 1, 2500);
-      }
-    }
+    //   // send_to_moto(1, 0, 0);
+    //   // send_to_moto(2, 1, 20, count % 2 < 1);
+    //   if (switches[0][0] == false)
+    //     send_to_moto(0, 1, 2500, false);
+    //   else if (switches[0][1] == false)
+    //   {
+    //     send_to_moto(0, 1, 2500);
+    //   }
+    // }
 
     temp++;
     if (temp == 200)

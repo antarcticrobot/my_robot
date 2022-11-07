@@ -187,6 +187,10 @@ catkin_install_python(PROGRAMS
   scripts/process_coin.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+catkin_install_python(PROGRAMS
+  scripts/tcp_send.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 
 ## Mark executables for installation
