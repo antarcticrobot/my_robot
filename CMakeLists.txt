@@ -177,18 +177,12 @@ target_link_libraries(msg_pub
 # )
 catkin_install_python(PROGRAMS
   scripts/cam_catch.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-catkin_install_python(PROGRAMS
   scripts/msg_sub.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-catkin_install_python(PROGRAMS
   scripts/process_coin.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-catkin_install_python(PROGRAMS
+  scripts/tcp_read.py
   scripts/tcp_send.py
+  scripts/port_read.py
+  scripts/port_send.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
