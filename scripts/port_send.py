@@ -34,17 +34,20 @@ def send_file(filename, mPort):
 
 def send_dictionary(dictionaryName, mPort):
     imagelist = get_img_file(dictionaryName)
-    count = len(imagelist)
-    for picName in imagelist:
-        send_file(picName, mPort)
-        count = count - 1
-    mPort.write([0xFF, 0x5A, 0x04, 0x00, 0x00])
-    print('已发送 ', ' 0x04')
+    if imagelist is None:
+        print("imagelist is None") 
+    else:
+        count = len(imagelist)
+        for picName in imagelist:
+            send_file(picName, mPort)
+            count = count - 1
+        mPort.write([0xFF, 0x5A, 0x04, 0x00, 0x00])
+        print('已发送 ', ' 0x04')
 
 
 #readPort = "COM3"
-readPort = "/dev/ttyUSB0"
+readPort = "/dev/ttyUSB1"
 
 if __name__ == '__main__':
     mPort = serial.Serial(readPort, 57600, bytesize=8, timeout=0.5)
-    send_dictionary("/home/yr/catkin_ws/src/my_robot/scripts/input", mPort)
+    send_dictionary("/home/robot/catkin_ws/src/my_robot/scripts/input", mPort)

@@ -27,7 +27,7 @@ class SerialPort:
                 data_bytes = data_bytes + rec_str
 
 
-readPort = "/dev/ttyUSB0"
+readPort = "/dev/ttyUSB1"
 baudRate = 57600
 is_exit = False
 data_bytes = bytearray()
