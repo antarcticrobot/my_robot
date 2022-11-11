@@ -183,6 +183,7 @@ catkin_install_python(PROGRAMS
   scripts/tcp_send.py
   scripts/port_read.py
   scripts/port_send.py
+  scripts/image_process.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

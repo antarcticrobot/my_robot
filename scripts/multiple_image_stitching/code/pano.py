@@ -132,7 +132,7 @@ if __name__ == '__main__':
 	try:
 		args = sys.argv[1]
 	except:
-		args = "txtlists/files3.txt"
+		args = "/home/yr/catkin_ws/src/my_robot/scripts/multiple_image_stitching/code/txtlists/files2.txt"
 	finally:
 		print ("Parameters : ", args)
 	s = Stitch(args)
