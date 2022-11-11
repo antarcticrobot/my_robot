@@ -61,10 +61,10 @@ figure, subplot(121),imshow(Imosaic);subplot(122),imshow(cp_rgbmosaic(I1rgb,I2rg
 cp_showResult(I1rgb,I2rgb,I1gray,I2gray,affmat,3); % checkborder image
 cp_showMatch(I1rgb,I2rgb,P1,P2,[],'Before Subpixel Fining');
 cp_showMatch(I1rgb,I2rgb,P1,P3,[],'After Subpixel Fineing');
-% imwrite(cp_rgbmosaic(I1rgb,I2rgb,affmat),['D:\' f1(1:end-4) '_Mosaic.jpg']);
+imwrite(cp_rgbmosaic(I1rgb,I2rgb,affmat),['/home/robot/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/' f1(1:end-4) '_Mosaic.jpg']);
 
 %% Obtain reference transformation matrix manually
-% [I1_aff,refaffmatT] = cp_manuallyTrans(I1rgb,I2rgb);
-% cp_showResult(I1rgb,I2rgb,I1gray,I2gray,refaffmatT,5);
-% refTrans = refaffmatT.T;
-% save([path f1(1:end-4) '.mat'],'refTrans')
+[I1_aff,refaffmatT] = cp_manuallyTrans(I1rgb,I2rgb);
+cp_showResult(I1rgb,I2rgb,I1gray,I2gray,refaffmatT,5);
+refTrans = refaffmatT.T;
+save([path f1(1:end-4) '.mat'],'refTrans')

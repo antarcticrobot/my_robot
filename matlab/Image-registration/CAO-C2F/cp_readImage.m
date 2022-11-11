@@ -8,13 +8,14 @@ close all
 disp('【0】Reading images ...')
 filenameset = ['JPG' 'PNG' 'TIF' 'BMP' 'PEG' 'PPM' 'PGM'...
                'jpg' 'png' 'tif' 'bmp' 'peg' 'ppm' 'pgm' 'dat'];
-ptemp = matlabpath;
-ind = strfind(ptemp,';');
-filepath = ptemp(ind(end)+1:end);
+% ptemp = matlabpath;
+% ind = strfind(ptemp,';');
+% filepath = ptemp(ind(end)+1:end);
+filepath = '/home/robot/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/Example_Images';
 
 if nargin == 0
     distort = 0;
-    [Filename1,pathname] = uigetfile([filepath '\*.*'],'pick an infrared image');
+    [Filename1,pathname] = uigetfile([filepath '/*.*'],'pick an infrared image');
     if ~contains(filenameset,Filename1(end-2:end))
         error('Incorrect file format input!');
     end
