@@ -19,6 +19,7 @@ from hjw_getAffine import hjw_getAffine
 from hjw_subpixelFine import hjw_subpixelFine
 from hjw_graymosaic import hjw_graymosaic
 from hjw_rgbmosaic import hjw_rgbmosaic
+from helper import get_time
 
 if __name__ == '__main__':
 
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     AffineTrans = np.zeros((3,3,iterationNum))
 
     while iteration < iterationNum:
-        [P1,P2,Rt,corner12,pos_cor1] = hjw_registration(I1,I2,maxtheta=20,maxErr=maxRMSE,iteration=iteration,zoomascend=1,zoomdescend=0,Lc=6,showflag=1,I2ori=I2_gray)
+        [P1,P2,Rt,corner12,pos_cor1] = hjw_registration(I1_itea,I2,maxtheta=20,maxErr=maxRMSE,iteration=iteration,zoomascend=1,zoomdescend=0,Lc=6,showflag=1,I2ori=I2_gray)
         Runtime += Rt
 
         I1_itea,affmat = hjw_getAffine(I1_itea,I2,P1,P2)  # % [v1,u1]==[v2,u2]
@@ -132,5 +133,7 @@ if __name__ == '__main__':
     rgb_Imosaic = rgb_Imosaic[..., ::-1]
     cv2.imwrite("result.jpg",rgb_Imosaic)
 
-    plt.imshow(rgb_Imosaic.astype('uint8'))
-    plt.show()
+    # plt.imshow(rgb_Imosaic.astype('uint8'))
+    # plt.savefig('./tmp/main_'+get_time()+'.png')
+    # plt.close()
+    # plt.show()

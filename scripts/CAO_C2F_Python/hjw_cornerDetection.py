@@ -8,6 +8,7 @@ from math import pi, sqrt
 import matplotlib.pyplot as plt
 from numpy.core.fromnumeric import mean
 
+from helper import get_time
 
 # %       Input :
 # %       I -  the input image, it could be gray, color or binary image. If I is
@@ -537,7 +538,10 @@ def cornerDetection(I,C,T_angle,sig,H,L,Endpoint,Gap_size,maxlength,rflag):
     
     canny = cv2.Canny(I,L,H)   # python-opencv的Canny，得到的是0和255，不是0和1
     plt.imshow(canny,cmap='gray')
-    plt.show()
+    plt.savefig('./tmp/cornerDetection_'+get_time()+'.png')
+    plt.close()
+    # plt.show()
+
     curve,curve_start,curve_end,curve_mode,cur_num = extract_curve(canny,Gap_size)
     # Detect corners
     cout,angle = get_corner(curve,curve_start,curve_end,curve_mode,cur_num,canny,sig,Endpoint,C,T_angle,maxlength,rflag)

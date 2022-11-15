@@ -25,7 +25,7 @@ from hjw_atan import *
 from hjw_descriptor import *
 from hjw_test_descriptor import tnd
 
-
+from helper import get_time
 
 if __name__ == '__main__':
 
@@ -125,7 +125,9 @@ if __name__ == '__main__':
     plt.plot(cor2[:,1],cor2[:,0],'y+')
     plt.quiver(cor2[:,1],cor2[:,0],xu2,yv2,color = 'r',scale = 25)   
     plt.title('corner of vivible image')
-    plt.show()
+    plt.savefig('./tmp/multiprocess_'+get_time()+'.png')
+    plt.close()
+    # plt.show()
 
 
 

@@ -2,6 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from helper import get_time
+
 def hjw_showMatch(I1,I2,loc1,loc2,correctPos,tname):
     cols = I1.shape[1]
     if I1.shape[0] < I2.shape[0]:
@@ -34,6 +36,7 @@ def hjw_showMatch(I1,I2,loc1,loc2,correctPos,tname):
         plt.plot(loc1[:,0],loc1[:,1],'r+')
         plt.plot(loc2[:,0]+cols,loc2[:,1],'go')
 
-    plt.show()
-
+    plt.savefig('./tmp/showMatch_'+get_time()+'.png')
+    plt.close()
+    # plt.show()
 

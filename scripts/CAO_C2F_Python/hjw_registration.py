@@ -17,6 +17,7 @@ from hjw_atan import hjw_atan
 from hjw_mismatchRemoval import hjw_mismatchRemoval
 from multiprocess_hjw_descriptor import multiprocess_hjw_descriptor
 
+from helper import get_time
 
 # 图像配准主函数
 def hjw_registration(I1,I2,maxtheta,maxErr,iteration,zoomascend,zoomdescend,Lc,showflag,I2ori):
@@ -73,7 +74,9 @@ def hjw_registration(I1,I2,maxtheta,maxErr,iteration,zoomascend,zoomdescend,Lc,s
                     np.cos(orientation2),-np.sin(orientation2),\
                     color = 'r',scale = 25)   
         plt.title('corner of visible image')
-        plt.show()
+        plt.savefig('./tmp/registration_'+get_time()+'.png')
+        plt.close()
+        # plt.show()
 
     # %%
     # extract decriptor of Image 1
