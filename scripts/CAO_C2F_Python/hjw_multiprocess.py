@@ -30,8 +30,8 @@ from hjw_test_descriptor import tnd
 if __name__ == '__main__':
 
     # source image path
-    path_infrared = '/home/robot/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/Example_Images/'
-    path_visible = '/home/robot/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/Example_Images/'
+    path_infrared = '/home/yr/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/Example_Images/'
+    path_visible = '/home/yr/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/Example_Images/'
 
     img_infrared = 'I1.jpg'
     img_visible = 'V1.jpg'

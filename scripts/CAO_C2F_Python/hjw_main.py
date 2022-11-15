@@ -1,9 +1,9 @@
 # infrared and visible images registration,  The whole work is divided into 5 parts
 
 # 带着问题：
-    # 1.descriptor和主方向angle有什么区别
-    # 2.如果说最后只要一个 transform matrix 即可，那么为什么要那么多对匹配点呢?
-    # 3.为什么一定要找到curve再算主方向呢？为什么不是curve就不行呢？   短的canny检测出来的离散点，她认为不算做curve
+# 1.descriptor和主方向angle有什么区别
+# 2.如果说最后只要一个 transform matrix 即可，那么为什么要那么多对匹配点呢?
+# 3.为什么一定要找到curve再算主方向呢？为什么不是curve就不行呢？   短的canny检测出来的离散点，她认为不算做curve
 
 # 基本库
 import numpy as np
@@ -23,16 +23,17 @@ from hjw_rgbmosaic import hjw_rgbmosaic
 if __name__ == '__main__':
 
     # source image path
-    path_infrared = '/home/robot/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/Example_Images/'
-    path_visible = '/home/robot/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/Example_Images/'
+    path_infrared = '/home/yr/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/Example_Images/'
+    path_visible = '/home/yr/catkin_ws/src/my_robot/matlab/Image-registration/CAO-C2F/Example_Images/'
 
-    img_infrared = 'I3.jpg'
-    img_visible = 'V3.jpg'
+    img_infrared = 'I1.jpg'
+    img_visible = 'V1.jpg'
 
     # %%
-    # section 1: Read source images 
+    # section 1: Read source images
     # 这里省略了张正友畸变校正法，去除红外图片的畸变
-    I1_rgb,I1_gray,I2_rgb,I2_gray = readimage(path_infrared,img_infrared,path_visible,img_visible)
+    I1_rgb, I1_gray, I2_rgb, I2_gray = readimage(
+        path_infrared, img_infrared, path_visible, img_visible)
     print('【Successfully read image!!】')
 
     # %%
@@ -68,7 +69,6 @@ if __name__ == '__main__':
     corner12[0:pos_cor1,1] = I1_gray.shape[0]/2 + scale[0] * (corner12[0:pos_cor1,1] - I1.shape[0]/2)
     corner12[0:pos_cor1,0] = I1_gray.shape[1]/2 + scale[0] * (corner12[0:pos_cor1,0] - I1.shape[1]/2)
 
-
     P2[:,1] = I2_gray.shape[0]/2 + scale[1] * (P2[:,1] - I2.shape[0]/2)
     P2[:,0] = I2_gray.shape[1]/2 + scale[1] * (P2[:,0] - I2.shape[1]/2)
     corner12[pos_cor1+1:,1] = I2_gray.shape[0]/2 + scale[1] * (corner12[pos_cor1+1:,1] - I2.shape[0]/2)
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     _,affmat = hjw_getAffine(I1_gray,I2_gray,P1,P3)
     affmat = affmat.T
     print(f'affmat={affmat}')
-    
+
     # ===========================================================================================================
     # ===========================================================================================================
     # I13_python_affmat:
@@ -91,15 +91,13 @@ if __name__ == '__main__':
     #  [ 5.39699239e-02  5.23562478e-01  1.57841986e-04]
     #  [ 1.67173712e+02 -4.11006551e+01  1.00000000e+00]]
     # I13_python_correct_dismatchremoval_affmat:
-    #[[ 4.65721368e-01 -5.88112539e-03 -2.39554016e-05]
+    # [[ 4.65721368e-01 -5.88112539e-03 -2.39554016e-05]
     # [ 5.15559018e-02  5.23629112e-01  1.53931046e-04]
     # [ 1.67641569e+02 -4.08656190e+01  1.00000000e+00]]
     # I13_matlab_affmat:
     # 0.471393843752357	-0.00188117933529857	-9.53282918852061e-06
     # 0.0461492908977536	0.522927251861718	0.000139936847492703
     # 167.840076383476	-42.4535804261491	1
-
-
 
     # I8_python_affmat:
     # [[ 1.20690173e+00  5.51252560e-04 -2.43693714e-05]
@@ -114,9 +112,8 @@ if __name__ == '__main__':
     # 0.00490881955508114	1.25799190774813	5.02042307506865e-05
     # -46.6135770449656	-101.818398459276	1
 
-
     # I1_python_affmat:
-    #[[ 1.17348262e-01 -1.08596530e+00 -5.68946532e-06]
+    # [[ 1.17348262e-01 -1.08596530e+00 -5.68946532e-06]
     # [ 9.95731781e-01  3.13281083e-02 -2.65918603e-04]
     # [-1.65277591e+02  7.48647445e+02  1.00000000e+00]]
     # I1_matlab_affmat:
@@ -125,17 +122,16 @@ if __name__ == '__main__':
     # -235.076526538735	772.081695043171	1
     # ===========================================================================================================
     # ===========================================================================================================
-
-
-
-    Imosaic = hjw_graymosaic(I1_gray,I2_gray,affmat)
-    rgb_Imosaic = hjw_rgbmosaic(I1_rgb,I2_rgb,affmat)
-    print(type(rgb_Imosaic))
-    print(rgb_Imosaic)
-
-    plt.imshow(rgb_Imosaic)
-    # plt.savefig("reult.png")
-    cv2.imwrite("reult.jpg",rgb_Imosaic*255)
-    plt.show()
-
     
+    # affmat = np.array([[0.215002590003858,	-1.11842096989889,	0.000176619778079327], [1.18794391272921,	0.146980130563059,	-5.85348472960980e-05], [-235.076526538735,	772.081695043171,	1]])
+    # affmat = np.array([[0.2119,	-1.0724,	2.0265e-04],[1.1479,	0.1401,	-6.4305e-05],[-228.4349,	743.9051,	1]])
+
+    Imosaic = hjw_graymosaic(I1_gray, I2_gray, affmat)
+
+    print(f'I1_rgb.shape={I1_rgb.shape}')
+    rgb_Imosaic = hjw_rgbmosaic(I1_rgb, I2_rgb, affmat)
+    rgb_Imosaic = rgb_Imosaic[..., ::-1]
+    cv2.imwrite("result.jpg",rgb_Imosaic)
+
+    plt.imshow(rgb_Imosaic.astype('uint8'))
+    plt.show()
