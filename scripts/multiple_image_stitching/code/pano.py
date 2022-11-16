@@ -11,8 +11,9 @@ class Stitch:
 		fp = open(self.path, 'r')
 		filenames = [each.rstrip('\r\n') for each in fp.readlines()]
 		print(filenames)
-		self.images = [cv2.resize(cv2.imread(each), (480, 320))
-                 for each in filenames]
+		# self.images = [cv2.resize(cv2.imread(each), (480, 320))
+        #          for each in filenames]
+		self.images = [cv2.imread(each) for each in filenames]
 		self.count = len(self.images)
 		self.left_list, self.right_list, self.center_im = [], [], None
 		self.matcher_obj = matchers()
