@@ -35,7 +35,7 @@ def hjw_graymosaic(I1, I2, affmat):
     input: a pair of source images
     output: a mosaic image based on liniear interplation transformation
     '''
-    print("enter hjw_graymosaic")
+    # print("enter hjw_graymosaic")
     r1, c1 = I1.shape[0], I1.shape[1]
     r2, c2 = I2.shape[0], I2.shape[1]
     Imosaic = np.zeros((r2+2*max(r1, c1), c2+2*max(r1, c1)))
@@ -74,8 +74,8 @@ def hjw_graymosaic(I1, I2, affmat):
     Imosaic = np.zeros((r2+2*max(r1, c1), c2+2*max(r1, c1)))
     Imosaic[max(r1, c1): max(r1, c1) + r2, max(r1, c1): max(r1, c1) + c2] = I2
 
-    print(f'Imosaic.shape={Imosaic.shape}')
-    print(f'Iterp.shape={Iterp.shape}')
+    # print(f'Imosaic.shape={Imosaic.shape}')
+    # print(f'Iterp.shape={Iterp.shape}')
     for i in range(Imosaic.shape[0]-1):
         for j in range(Imosaic.shape[1]-1):
             if (Iterp[i][j] != None) and (Imosaic[i][j] != None):
@@ -84,6 +84,6 @@ def hjw_graymosaic(I1, I2, affmat):
                 Imosaic[i][j] = Iterp[i][j]
     validuv = [min(vmin1, max(r1, c1)), min(umin1, max(r1, c1)), max(
         vmax1, max(r1, c1) + r2), max(umax1, max(r1, c1) + c2)]
-    print(f'validuv={validuv}')
+    # print(f'validuv={validuv}')
     Imosaic = Imosaic[validuv[0]: validuv[2], validuv[1]: validuv[3]]
     return Imosaic
