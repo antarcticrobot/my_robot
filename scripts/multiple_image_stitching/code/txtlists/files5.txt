@@ -1,0 +1,4 @@
+/home/yr/current_test/vertical_groups/left1.jpg
+/home/yr/current_test/vertical_groups/left2.jpg
+/home/yr/current_test/vertical_groups/left3.jpg
+/home/yr/current_test/vertical_groups/left4.jpg
