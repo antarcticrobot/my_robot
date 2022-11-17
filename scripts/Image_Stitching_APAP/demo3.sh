@@ -1,4 +1,4 @@
-python3 main.py --imgroot /home/yr/current_test/vertical_groups_4 \
+python3 main.py --imgroot /home/yr/current_test/desk_rotate \
 --imglist ./demo3.txt \
 --saveroot ./images/results \
 --verbose True \

@@ -7,9 +7,9 @@ from queue import *
 def imgstitcher(imgs):  # 传入图像数据 列表[] 实现图像拼接
     print("imgs.length",len(imgs))
     stitcher = cv2.Stitcher.create(cv2.Stitcher_PANORAMA)
-    _result, pano = stitcher.stitch(imgs)
-    print("_result",_result)
-    if(_result==0):
+    status, pano = stitcher.stitch(imgs)
+    print("status",status)
+    if(status==0):
         output = 'result' + '.png'
         cv2.imwrite(output, pano)
         print("拼接成功. %s 已保存!" % output)
