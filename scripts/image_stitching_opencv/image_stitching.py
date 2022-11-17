@@ -30,6 +30,8 @@ for imagePath in imagePaths:
 	image = cv2.imread(imagePath)
 	images.append(image)
 
+print("images.count",len(images))
+
 # initialize OpenCV's image sticher object and then perform the image
 # stitching
 print("[INFO] stitching images...")
@@ -99,7 +101,7 @@ if status == 0:
     cv2.imwrite(args["output"], stitched)
 
     # display the output stitched image to our screen
-    cv2.imshow("Stitched", stitched)
+    # cv2.imshow("Stitched", stitched)
     cv2.waitKey(0)
 
 # otherwise the stitching failed, likely due to not enough keypoints)
