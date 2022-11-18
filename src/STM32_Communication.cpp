@@ -190,12 +190,13 @@ int main(int argc, char **argv)
       uart_recive_flag = analy_uart_recive_data(serial_data);
       calculate_position_for_odometry();
       // if (uart_recive_flag)
-      {
-        uart_recive_flag = 0;
-        calculate_position_for_odometry();
-      }
+      // {
+      //   uart_recive_flag = 0;
+      //   calculate_position_for_odometry();
+      // }
     }
-    else{
+    else
+    {
       // ROS_INFO_STREAM("ros_ser.available() false");
     }
 
@@ -556,18 +557,17 @@ float position_screw = -1.0, position_w = 0;
 
 void calculate_position_for_odometry(void)
 {
-  ROS_INFO_STREAM("calculate_position_for_odometry");
   //方法１：　　计算每个轮子转动的位移，然后利用Ｆ矩阵合成Ｘ,Y,W三个方向的位移
   float distances_delta[4];
   float vel[4];
 
-  // float position_delta[3];
-  // float position_w_delta, position_r_delta;
-  // float linear_x, linear_z, angular_w;
+  float position_delta[3];
+  float position_w_delta, position_r_delta;
+  float linear_x, linear_z, angular_w;
 
   // if ((distances_last[0] == 0 && distances_last[1] == 0 &&
-  //      distances_last[2] == 0 && distances_last[3] == 0) ||
-  //     (moto_chassis[0].counter == 0))
+  //      distances_last[2] == 0 && distances_last[3] == 0))
+  // //  || (moto_chassis[0].counter == 0)
   // {
   //   for (int i = 0; i < 4; i++)
   //   {
@@ -578,18 +578,17 @@ void calculate_position_for_odometry(void)
   //   return;
   // }
 
-  // //轮子转动的圈数乘以　N*pi*D
-  // for (int i = 0; i < 4; i++)
-  // {
-  //   distances_last[i] = distances[i];
-  //   distances[i] = (moto_chassis[i].round_cnt +
-  //                   (moto_chassis[i].total_angle % 8192) / 8192.0) /
-  //                  RATIO[i] * WHEEL_PI * WHEEL_D[i];
-  //   distances_delta[i] =
-  //       distances[i] - distances_last[i]; //每个轮子位移的增量
-  //   if (abs(distances_delta[i]) < 0.001)
-  //     distances_delta[i] = 0;
-  // }
+  ROS_INFO_STREAM("calculate_position_for_odometry");
+  //轮子转动的圈数乘以　N*pi*D
+  for (int i = 0; i < 4; i++)
+  {
+    distances_last[i] = distances[i];
+    distances[i] = (moto_chassis[i].round_cnt + (moto_chassis[i].total_angle % 8192) / 8192.0) /
+                   RATIO[i] * WHEEL_PI * WHEEL_D[i];
+    distances_delta[i] = distances[i] - distances_last[i]; //每个轮子位移的增量
+    if (abs(distances_delta[i]) < 0.001)
+      distances_delta[i] = 0;
+  }
 
   ROS_INFO_STREAM("distances_delta[0-3]: "
                   << "distances_delta[0]: " << distances_delta[0]
