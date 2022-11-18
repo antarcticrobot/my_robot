@@ -105,6 +105,7 @@ void publish_odomtery(float position_x, float position_z, float oriention,
 void for_show_2022_1106(int count);
 void for_show_vel_and_pos(int count, bool fixedPointSwitches);
 void send_cam_flag(bool flag);
+void motion_test(int count, bool fixedPointSwitches);
 
 int main(int argc, char **argv)
 {
@@ -120,8 +121,6 @@ int main(int argc, char **argv)
   n.param<int>("buad", buad, 115200);
   n.param<int>("time_out", time_out, 1000);
   n.param<int>("hz", hz, 100);
-  ROS_INFO_STREAM("sub_cmdvel_topic:   " << sub_cmdvel_topic);
-  ROS_INFO_STREAM("pub_odom_topic:   " << pub_odom_topic);
 
   ros::Subscriber command_sub = n.subscribe(sub_cmdvel_topic, 10, cmd_vel_callback);
   odom_pub = n.advertise<nav_msgs::Odometry>(pub_odom_topic, 20);
@@ -226,6 +225,14 @@ int main(int argc, char **argv)
   ros::waitForShutdown();
   ros::shutdown();
   return 1;
+}
+//尝试实现运动过程中，三自由度当前位置的命令行输出
+void motion_test(int count, int tmp, bool fixedPointSwitches)
+{
+  if (tmp == 0)
+  {
+    // ROS_INFO_STREAM("三自由度当前位置"<< vel[0] << " vel[1]: " << vel[1] << " vel[2]: " << vel[2] << " vel[3]: " << vel[3]);
+  }
 }
 //简化相机信号发送，提取出send_cam_flag(bool flag)
 void send_cam_flag(bool flag)
@@ -501,22 +508,22 @@ bool analy_uart_recive_data(std_msgs::String serial_data)
 
         ROS_INFO_STREAM("recived motor data, number:" << countFrame);
         // 打印四个电机的转速、转角、温度等信息
-        ROS_INFO_STREAM("M " << j << "  counter: "
-                             << motor_upload_counter.int32_dat
-                             << "  t_a: " << moto_chassis[j].total_angle
-                             << "  n: " << moto_chassis[j].round_cnt
-                             << " rpm: " << moto_chassis[j].speed_rpm
-                             << "  a: " << moto_chassis[j].angle);
-        ROS_INFO_STREAM("M " << j << "  Temp: " << moto_chassis[j].Temp
-                             << "  microswitches: "
-                             << moto_chassis[j].microswitches
-                             << "  switches[][0]: " << (switches[j][0])
-                             << "  switches[][1]: "
-                             << (switches[j][1] == true ? 1 : 0));
+        // ROS_INFO_STREAM("M " << j << "  counter: "
+        //                      << motor_upload_counter.int32_dat
+        //                      << "  t_a: " << moto_chassis[j].total_angle
+        //                      << "  n: " << moto_chassis[j].round_cnt
+        //                      << " rpm: " << moto_chassis[j].speed_rpm
+        //                      << "  a: " << moto_chassis[j].angle);
+        // ROS_INFO_STREAM("M " << j << "  Temp: " << moto_chassis[j].Temp
+        //                      << "  microswitches: "
+        //                      << moto_chassis[j].microswitches
+        //                      << "  switches[][0]: " << (switches[j][0])
+        //                      << "  switches[][1]: "
+        //                      << (switches[j][1] == true ? 1 : 0));
 
-        ROS_INFO_STREAM("M "
-                        << "  edges[][0]: " << edges[j][0]
-                        << "  edges[][1]: " << edges[j][1]);
+        // ROS_INFO_STREAM("M "
+        //                 << "  edges[][0]: " << edges[j][0]
+        //                 << "  edges[][1]: " << edges[j][1]);
       }
       else
       {
