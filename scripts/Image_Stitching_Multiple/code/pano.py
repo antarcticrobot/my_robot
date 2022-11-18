@@ -65,7 +65,7 @@ class Stitch:
 			dsize = (int(txyz[0])+self.leftImage.shape[1],
 			         int(txyz[1])+self.leftImage.shape[0])
 			tmp = cv2.warpPerspective(each, H, dsize)
-			cv2.imwrite("tp.jpg", tmp)
+			# cv2.imwrite("tp.jpg", tmp)
 			tmp = self.mix_and_match(self.leftImage, tmp)
 			print("tmp shape", tmp.shape)
 			print("self.leftimage shape=", self.leftImage.shape)
