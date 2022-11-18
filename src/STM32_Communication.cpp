@@ -183,15 +183,20 @@ int main(int argc, char **argv)
   {
     if (ros_ser.available())
     {
+      ROS_INFO_STREAM("ros_ser.available()");
       std_msgs::String serial_data;
       serial_data.data = ros_ser.read(ros_ser.available());
 
       uart_recive_flag = analy_uart_recive_data(serial_data);
-      if (uart_recive_flag)
+      calculate_position_for_odometry();
+      // if (uart_recive_flag)
       {
         uart_recive_flag = 0;
         calculate_position_for_odometry();
       }
+    }
+    else{
+      // ROS_INFO_STREAM("ros_ser.available() false");
     }
 
     // switches[1][4] == true后30秒内，且两个动作完成前，
@@ -551,39 +556,40 @@ float position_screw = -1.0, position_w = 0;
 
 void calculate_position_for_odometry(void)
 {
+  ROS_INFO_STREAM("calculate_position_for_odometry");
   //方法１：　　计算每个轮子转动的位移，然后利用Ｆ矩阵合成Ｘ,Y,W三个方向的位移
   float distances_delta[4];
   float vel[4];
 
-  float position_delta[3];
-  float position_w_delta, position_r_delta;
-  float linear_x, linear_z, angular_w;
+  // float position_delta[3];
+  // float position_w_delta, position_r_delta;
+  // float linear_x, linear_z, angular_w;
 
-  if ((distances_last[0] == 0 && distances_last[1] == 0 &&
-       distances_last[2] == 0 && distances_last[3] == 0) ||
-      (moto_chassis[0].counter == 0))
-  {
-    for (int i = 0; i < 4; i++)
-    {
-      distances[i] = (moto_chassis[i].round_cnt + (moto_chassis[i].total_angle % 8192) / 8192.0) /
-                     RATIO[i] * WHEEL_PI * WHEEL_D[i];
-      distances_last[i] = distances[i];
-    }
-    return;
-  }
+  // if ((distances_last[0] == 0 && distances_last[1] == 0 &&
+  //      distances_last[2] == 0 && distances_last[3] == 0) ||
+  //     (moto_chassis[0].counter == 0))
+  // {
+  //   for (int i = 0; i < 4; i++)
+  //   {
+  //     distances[i] = (moto_chassis[i].round_cnt + (moto_chassis[i].total_angle % 8192) / 8192.0) /
+  //                    RATIO[i] * WHEEL_PI * WHEEL_D[i];
+  //     distances_last[i] = distances[i];
+  //   }
+  //   return;
+  // }
 
-  //轮子转动的圈数乘以　N*pi*D
-  for (int i = 0; i < 4; i++)
-  {
-    distances_last[i] = distances[i];
-    distances[i] = (moto_chassis[i].round_cnt +
-                    (moto_chassis[i].total_angle % 8192) / 8192.0) /
-                   RATIO[i] * WHEEL_PI * WHEEL_D[i];
-    distances_delta[i] =
-        distances[i] - distances_last[i]; //每个轮子位移的增量
-    if (abs(distances_delta[i]) < 0.001)
-      distances_delta[i] = 0;
-  }
+  // //轮子转动的圈数乘以　N*pi*D
+  // for (int i = 0; i < 4; i++)
+  // {
+  //   distances_last[i] = distances[i];
+  //   distances[i] = (moto_chassis[i].round_cnt +
+  //                   (moto_chassis[i].total_angle % 8192) / 8192.0) /
+  //                  RATIO[i] * WHEEL_PI * WHEEL_D[i];
+  //   distances_delta[i] =
+  //       distances[i] - distances_last[i]; //每个轮子位移的增量
+  //   if (abs(distances_delta[i]) < 0.001)
+  //     distances_delta[i] = 0;
+  // }
 
   ROS_INFO_STREAM("distances_delta[0-3]: "
                   << "distances_delta[0]: " << distances_delta[0]
@@ -591,44 +597,44 @@ void calculate_position_for_odometry(void)
                   << " distances_delta[2]: " << distances_delta[2]
                   << " distances_delta[3]: " << distances_delta[3]);
 
-  position_delta[0] = distances_delta[1]; //
-  position[0] += position_delta[0];
+  // position_delta[0] = distances_delta[1]; //
+  // position[0] += position_delta[0];
 
-  position[1] = 0; //
+  // position[1] = 0; //
 
-  if (position_screw < 0)
-    position[2] = 0;
-  else
-  {
-    position_screw +=
-        distances_delta[0] / (WHEEL_PI * WHEEL_D[0]) * (SCREW_PITCH); //
-    position[2] =
-        sqrt(HYPOTENUSE * HYPOTENUSE - position_screw * position_screw) * 2;
-  }
-  position_w_delta =
-      (distances_delta[2]) / float(WHEEL_D[2]); // w, 单位为弧度
-  position_w += position_w_delta;
-  if (position_w > 2 * WHEEL_PI)
-    position_w = position_w - 2 * WHEEL_PI;
-  else if (position_w < -2 * WHEEL_PI)
-    position_w = position_w + 2 * WHEEL_PI;
+  // if (position_screw < 0)
+  //   position[2] = 0;
+  // else
+  // {
+  //   position_screw +=
+  //       distances_delta[0] / (WHEEL_PI * WHEEL_D[0]) * (SCREW_PITCH); //
+  //   position[2] =
+  //       sqrt(HYPOTENUSE * HYPOTENUSE - position_screw * position_screw) * 2;
+  // }
+  // position_w_delta =
+  //     (distances_delta[2]) / float(WHEEL_D[2]); // w, 单位为弧度
+  // position_w += position_w_delta;
+  // if (position_w > 2 * WHEEL_PI)
+  //   position_w = position_w - 2 * WHEEL_PI;
+  // else if (position_w < -2 * WHEEL_PI)
+  //   position_w = position_w + 2 * WHEEL_PI;
 
-  for (int i = 0; i < 4; i++)
-  {
-    vel[i] = (moto_chassis[i].speed_rpm) / RATIO[i] / 60.0 * WHEEL_PI *
-             WHEEL_D[i];
-  }
-  linear_x = vel[1];
-  linear_z = vel[0];
-  angular_w = vel[2];
+  // for (int i = 0; i < 4; i++)
+  // {
+  //   vel[i] = (moto_chassis[i].speed_rpm) / RATIO[i] / 60.0 * WHEEL_PI *
+  //            WHEEL_D[i];
+  // }
+  // linear_x = vel[1];
+  // linear_z = vel[0];
+  // angular_w = vel[2];
 
-  ROS_INFO_STREAM("pos and vel: "
-                  << "px:  " << position[0] << "   pz: " << position[2]
-                  << "   pw: " << position_w * 57.3 << "  vx:  " << linear_x
-                  << "   vz: " << linear_z << "   rw: " << angular_w << endl);
+  // ROS_INFO_STREAM("pos and vel: "
+  //                 << "px:  " << position[0] << "   pz: " << position[2]
+  //                 << "   pw: " << position_w * 57.3 << "  vx:  " << linear_x
+  //                 << "   vz: " << linear_z << "   rw: " << angular_w << endl);
 
-  publish_odomtery(position[0], position[2], position_w, linear_x, linear_z,
-                   angular_w);
+  // publish_odomtery(position[0], position[2], position_w, linear_x, linear_z,
+  //                  angular_w);
 }
 
 /**
