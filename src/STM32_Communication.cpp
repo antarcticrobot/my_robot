@@ -44,8 +44,6 @@ float HYPOTENUSE = 0.15;
 float SCREW_PITCH = 0.004;
 float WHEEL_PI = 3.141693; // pi
 
-float WHEEL_L = 0.680; //左右轮子的间距
-
 serial::Serial ros_ser;
 ros::Publisher odom_pub;
 ros::Publisher chatter_pub;
@@ -216,7 +214,7 @@ int main(int argc, char **argv)
   ros::shutdown();
   return 1;
 }
-//尝试实现运动过程中，三自由度当前位置的命令行输出
+//尝试实现……
 void motion_test(int count, int tmp, bool fixedPointSwitches)
 {
 }
@@ -524,14 +522,14 @@ bool analy_uart_recive_data(std_msgs::String serial_data)
  * @function 利用里程计数据实现位置估计
  *
  */
-float distances[4];
-float distances_last[4];
+float distances[3];
+float distances_last[3];
 float position[3];
 float position_screw = -1.0, position_w = 0;
-
+float min_interval[3] = {0.001, 0.001, 0.0001};
+float max_interval[3] = {1.0, 1.0, 1.0};
 void calculate_position_for_odometry(void)
 {
-  //方法１：　　计算每个轮子转动的位移，然后利用Ｆ矩阵合成Ｘ,Y,W三个方向的位移
   float distances_delta[4];
   float vel[4];
 
@@ -541,13 +539,13 @@ void calculate_position_for_odometry(void)
 
   ROS_INFO_STREAM("calculate_position_for_odometry");
   //轮子转动的圈数乘以　N*pi*D
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < 3; i++)
   {
     distances_last[i] = distances[i];
     distances[i] = (moto_chassis[i].round_cnt + (moto_chassis[i].total_angle % 8192) / 8192.0) /
                    RATIO[i] * WHEEL_PI * WHEEL_D[i];
     distances_delta[i] = distances[i] - distances_last[i]; //每个轮子位移的增量
-    if (abs(distances_delta[i]) < 0.001)
+    if (abs(distances_delta[i]) < min_interval[i] || abs(distances_delta[i]) > max_interval[i])
       distances_delta[i] = 0;
   }
 
@@ -576,9 +574,7 @@ void calculate_position_for_odometry(void)
   //   position_w = position_w + 2 * WHEEL_PI;
 
   for (int i = 0; i < 4; i++)
-  {
     vel[i] = (moto_chassis[i].speed_rpm) / RATIO[i] / 60.0 * WHEEL_PI * WHEEL_D[i];
-  }
   linear_x = vel[1];
   linear_z = vel[0];
   angular_w = vel[2];
@@ -586,8 +582,7 @@ void calculate_position_for_odometry(void)
   ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << position_w);
   ROS_INFO_STREAM("vx: " << linear_x << " vz: " << linear_z << " rw: " << angular_w << endl);
 
-  // publish_odomtery(position[0], position[2], position_w, linear_x, linear_z,
-  //                  angular_w);
+  publish_odomtery(position[0], position[2], position_w, linear_x, linear_z, angular_w);
 }
 
 /**
