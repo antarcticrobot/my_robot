@@ -20,11 +20,11 @@
 import sensor, image, time, math
 
 # Color Tracking Thresholds (Grayscale Min, Grayscale Max)
-threshold_list = [(200, 255)]
+threshold_list = [(0, 255)]
 
 # Set the target temp range here
-min_temp_in_celsius = 20.0
-max_temp_in_celsius = 35.0
+min_temp_in_celsius = -20.0
+max_temp_in_celsius = 80.0
 
 print("Resetting Lepton...")
 # These settings are applied on reset
@@ -47,6 +47,14 @@ clock = time.clock()
 def map_g_to_temp(g):
     return ((g * (max_temp_in_celsius - min_temp_in_celsius)) / 255.0) + min_temp_in_celsius
 
+def compute(img,rect):
+    m = img.get_statistics(thresholds=threshold_list,roi=rect).mean()
+    ans = map_g_to_temp(m)
+    return ans
+
+width = sensor.ioctl(sensor.IOCTL_LEPTON_GET_WIDTH)
+height = sensor.ioctl(sensor.IOCTL_LEPTON_GET_HEIGHT)
+
 while(True):
     clock.tick()
     img = sensor.snapshot()
@@ -54,8 +62,18 @@ while(True):
     blobs = img.find_blobs(threshold_list, pixels_threshold=20, area_threshold=20, merge=True)
     # Collect stats into a list of tuples
     for blob in blobs:
-        blob_stats.append((blob.x(), blob.y(), map_g_to_temp(img.get_statistics(thresholds=threshold_list,
-                                                                                roi=blob.rect()).mean())))
+        print(blob.rect())
+        print(compute(img,blob.rect()))
+        blob_stats.append((blob.x(), blob.y(), compute(img,blob.rect())))
+
+    pieces = 10
+    for i in range(pieces):
+        tmp = [0,int(height/pieces*i),width,int(height/pieces)]
+        print("horizontal i : %f",compute(img,tmp))
+        tmp = [int(width/pieces*i),0,int(width/pieces),height]
+        print("vertival  : %f",compute(img,tmp))
+
+
     img.to_rainbow(color_palette=sensor.PALETTE_IRONBOW) # color it
     # Draw stuff on the colored image
     for blob in blobs:
