@@ -214,6 +214,8 @@ int main(int argc, char **argv)
       fixedPointSwitches[0] = false;
     }
 
+    // send_to_moto(2, 1, 10);
+
     for_show_2022_1106(count);
     // for_show_vel_and_pos(count, fixedPointSwitches[0]);
 
@@ -295,7 +297,7 @@ void for_show_2022_1106(int count)
   {
     send_to_moto(0, 1, 0);
     send_to_moto(1, 1, 0);
-    send_to_moto(2, 1, 0, stage < stepLen * 4.5);
+    send_to_moto(2, 1, 10, stage < stepLen * 4.5);
   }
 }
 
@@ -594,10 +596,10 @@ void calculate_position_for_odometry(void)
 
   position_w_delta = (distances_delta[2]) / float(WHEEL_D[2]); // w, 单位为弧度
   position_w += position_w_delta;
-  if (position_w > 2 * WHEEL_PI)
-    position_w = position_w - 2 * WHEEL_PI;
-  else if (position_w < -2 * WHEEL_PI)
-    position_w = position_w + 2 * WHEEL_PI;
+  // if (position_w > 2 * WHEEL_PI)
+  //   position_w = position_w - 2 * WHEEL_PI;
+  // else if (position_w < -2 * WHEEL_PI)
+  //   position_w = position_w + 2 * WHEEL_PI;
 
   for (int i = 0; i < 4; i++)
   {
@@ -607,7 +609,7 @@ void calculate_position_for_odometry(void)
   linear_z = vel[0];
   angular_w = vel[2];
 
-  ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << endl);
+  ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << position_w );
   ROS_INFO_STREAM("vx: " << linear_x << " vz: " << linear_z << " rw: " << angular_w << endl);
 
   // publish_odomtery(position[0], position[2], position_w, linear_x, linear_z,
