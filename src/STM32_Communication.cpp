@@ -530,8 +530,8 @@ float min_interval[3] = {0.001, 0.001, 0.0001};
 float max_interval[3] = {1.0, 1.0, 1.0};
 void calculate_position_for_odometry(void)
 {
-  float distances_delta[4];
-  float vel[4];
+  float distances_delta[3];
+  float vel[3];
 
   float position_delta[3];
   float position_w_delta, position_r_delta;
@@ -542,8 +542,8 @@ void calculate_position_for_odometry(void)
   for (int i = 0; i < 3; i++)
   {
     distances_last[i] = distances[i];
-    distances[i] = (moto_chassis[i].round_cnt + (moto_chassis[i].total_angle % 8192) / 8192.0) /
-                   RATIO[i] * WHEEL_PI * WHEEL_D[i];
+    distances[i] = moto_chassis[i].round_cnt + (moto_chassis[i].total_angle % 8192) / 8192.0;
+    distances[i] = distances[i] / RATIO[i] * WHEEL_PI * WHEEL_D[i];
     distances_delta[i] = distances[i] - distances_last[i]; //每个轮子位移的增量
     if (abs(distances_delta[i]) < min_interval[i] || abs(distances_delta[i]) > max_interval[i])
       distances_delta[i] = 0;
@@ -573,7 +573,7 @@ void calculate_position_for_odometry(void)
   // else if (position_w < -2 * WHEEL_PI)
   //   position_w = position_w + 2 * WHEEL_PI;
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < 3; i++)
     vel[i] = (moto_chassis[i].speed_rpm) / RATIO[i] / 60.0 * WHEEL_PI * WHEEL_D[i];
   linear_x = vel[1];
   linear_z = vel[0];
