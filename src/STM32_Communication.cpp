@@ -407,14 +407,12 @@ bool analy_uart_recive_data(std_msgs::String serial_data)
   unsigned char reviced_tem[500];
   uint16_t len = 0, i = 0, j = 0;
   unsigned char check = 0;
-  unsigned char tem_last = 0, tem_curr = 0,
-                rec_flag = 0;          //定义接收标志位
-  uint16_t header_count = 0, step = 0; //计数这个数据序列中有多少个帧头
+  unsigned char tem_last = 0, tem_curr = 0, rec_flag = 0; //定义接收标志位
+  uint16_t header_count = 0, step = 0;                    //计数这个数据序列中有多少个帧头
   len = serial_data.data.size();
   if (len < 1 || len > 500)
   {
-    ROS_INFO_STREAM(
-        "serial data is too short ,  len: " << serial_data.data.size());
+    ROS_INFO_STREAM("serial data is too short ,  len: " << serial_data.data.size());
     return false; //数据长度太短　
   }
   ROS_INFO_STREAM("Read: " << serial_data.data.size());
@@ -565,19 +563,6 @@ void calculate_position_for_odometry(void)
   float position_w_delta, position_r_delta;
   float linear_x, linear_z, angular_w;
 
-  // if ((distances_last[0] == 0 && distances_last[1] == 0 &&
-  //      distances_last[2] == 0 && distances_last[3] == 0))
-  // //  || (moto_chassis[0].counter == 0)
-  // {
-  //   for (int i = 0; i < 4; i++)
-  //   {
-  //     distances[i] = (moto_chassis[i].round_cnt + (moto_chassis[i].total_angle % 8192) / 8192.0) /
-  //                    RATIO[i] * WHEEL_PI * WHEEL_D[i];
-  //     distances_last[i] = distances[i];
-  //   }
-  //   return;
-  // }
-
   ROS_INFO_STREAM("calculate_position_for_odometry");
   //轮子转动的圈数乘以　N*pi*D
   for (int i = 0; i < 4; i++)
@@ -590,28 +575,24 @@ void calculate_position_for_odometry(void)
       distances_delta[i] = 0;
   }
 
-  ROS_INFO_STREAM("distances_delta[0-3]: "
-                  << "distances_delta[0]: " << distances_delta[0]
-                  << " distances_delta[1]: " << distances_delta[1]
-                  << " distances_delta[2]: " << distances_delta[2]
-                  << " distances_delta[3]: " << distances_delta[3]);
+  ROS_INFO_STREAM("distances_delta[0]: " << distances_delta[0]
+                                         << " distances_delta[1]: " << distances_delta[1]
+                                         << " distances_delta[2]: " << distances_delta[2]);
 
-  position_delta[0] = distances_delta[1]; //
+  position_delta[0] = distances_delta[1];
   position[0] += position_delta[0];
 
-  position[1] = 0; //
-
+  position_delta[2] = distances_delta[0];
+  position[2] += position_delta[2];
   // if (position_screw < 0)
   //   position[2] = 0;
   // else
-  {
-    position_screw +=
-        distances_delta[0] / (WHEEL_PI * WHEEL_D[0]) * (SCREW_PITCH); //
-    position[2] =
-        sqrt(HYPOTENUSE * HYPOTENUSE - position_screw * position_screw) * 2;
-  }
-  position_w_delta =
-      (distances_delta[2]) / float(WHEEL_D[2]); // w, 单位为弧度
+  // {
+  //   position_screw += distances_delta[0] / (WHEEL_PI * WHEEL_D[0]) * (SCREW_PITCH);
+  //   position[2] = sqrt(HYPOTENUSE * HYPOTENUSE - position_screw * position_screw) * 2;
+  // }
+
+  position_w_delta = (distances_delta[2]) / float(WHEEL_D[2]); // w, 单位为弧度
   position_w += position_w_delta;
   if (position_w > 2 * WHEEL_PI)
     position_w = position_w - 2 * WHEEL_PI;
@@ -620,17 +601,14 @@ void calculate_position_for_odometry(void)
 
   for (int i = 0; i < 4; i++)
   {
-    vel[i] = (moto_chassis[i].speed_rpm) / RATIO[i] / 60.0 * WHEEL_PI *
-             WHEEL_D[i];
+    vel[i] = (moto_chassis[i].speed_rpm) / RATIO[i] / 60.0 * WHEEL_PI * WHEEL_D[i];
   }
   linear_x = vel[1];
   linear_z = vel[0];
   angular_w = vel[2];
 
-  ROS_INFO_STREAM("pos and vel: "
-                  << "px:  " << position[0] << "   pz: " << position[2]
-                  << "   pw: " << position_w * 57.3 << "  vx:  " << linear_x
-                  << "   vz: " << linear_z << "   rw: " << angular_w << endl);
+  ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << endl);
+  ROS_INFO_STREAM("vx: " << linear_x << " vz: " << linear_z << " rw: " << angular_w << endl);
 
   // publish_odomtery(position[0], position[2], position_w, linear_x, linear_z,
   //                  angular_w);
