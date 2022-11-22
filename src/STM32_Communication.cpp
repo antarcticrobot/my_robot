@@ -295,7 +295,7 @@ void for_show_2022_1106(int count)
   {
     send_to_moto(0, 1, 0);
     send_to_moto(1, 1, 0);
-    send_to_moto(2, 1, 5, stage < stepLen * 4.5);
+    send_to_moto(2, 1, 0, stage < stepLen * 4.5);
   }
 }
 
@@ -319,10 +319,10 @@ void cmd_vel_callback(const geometry_msgs::Twist::ConstPtr &msg)
 
   for (int i = 0; i < 4; i++)
   {
-    if (vel[i] >= 0)
-      send_to_moto(i, 1, vel[i] * 0.1);
-    else
-      send_to_moto(i, 1, -vel[i] * 0.1, false);
+    // if (vel[i] >= 0)
+    //   send_to_moto(i, 1, vel[i] * 0.1);
+    // else
+    //   send_to_moto(i, 1, -vel[i] * 0.1, false);
   }
 
   ROS_INFO_STREAM("vel[0]: " << vel[0] << " vel[1]: " << vel[1] << " vel[2]: " << vel[2] << " vel[3]: " << vel[3]);
@@ -596,41 +596,41 @@ void calculate_position_for_odometry(void)
                   << " distances_delta[2]: " << distances_delta[2]
                   << " distances_delta[3]: " << distances_delta[3]);
 
-  // position_delta[0] = distances_delta[1]; //
-  // position[0] += position_delta[0];
+  position_delta[0] = distances_delta[1]; //
+  position[0] += position_delta[0];
 
-  // position[1] = 0; //
+  position[1] = 0; //
 
   // if (position_screw < 0)
   //   position[2] = 0;
   // else
-  // {
-  //   position_screw +=
-  //       distances_delta[0] / (WHEEL_PI * WHEEL_D[0]) * (SCREW_PITCH); //
-  //   position[2] =
-  //       sqrt(HYPOTENUSE * HYPOTENUSE - position_screw * position_screw) * 2;
-  // }
-  // position_w_delta =
-  //     (distances_delta[2]) / float(WHEEL_D[2]); // w, 单位为弧度
-  // position_w += position_w_delta;
-  // if (position_w > 2 * WHEEL_PI)
-  //   position_w = position_w - 2 * WHEEL_PI;
-  // else if (position_w < -2 * WHEEL_PI)
-  //   position_w = position_w + 2 * WHEEL_PI;
+  {
+    position_screw +=
+        distances_delta[0] / (WHEEL_PI * WHEEL_D[0]) * (SCREW_PITCH); //
+    position[2] =
+        sqrt(HYPOTENUSE * HYPOTENUSE - position_screw * position_screw) * 2;
+  }
+  position_w_delta =
+      (distances_delta[2]) / float(WHEEL_D[2]); // w, 单位为弧度
+  position_w += position_w_delta;
+  if (position_w > 2 * WHEEL_PI)
+    position_w = position_w - 2 * WHEEL_PI;
+  else if (position_w < -2 * WHEEL_PI)
+    position_w = position_w + 2 * WHEEL_PI;
 
-  // for (int i = 0; i < 4; i++)
-  // {
-  //   vel[i] = (moto_chassis[i].speed_rpm) / RATIO[i] / 60.0 * WHEEL_PI *
-  //            WHEEL_D[i];
-  // }
-  // linear_x = vel[1];
-  // linear_z = vel[0];
-  // angular_w = vel[2];
+  for (int i = 0; i < 4; i++)
+  {
+    vel[i] = (moto_chassis[i].speed_rpm) / RATIO[i] / 60.0 * WHEEL_PI *
+             WHEEL_D[i];
+  }
+  linear_x = vel[1];
+  linear_z = vel[0];
+  angular_w = vel[2];
 
-  // ROS_INFO_STREAM("pos and vel: "
-  //                 << "px:  " << position[0] << "   pz: " << position[2]
-  //                 << "   pw: " << position_w * 57.3 << "  vx:  " << linear_x
-  //                 << "   vz: " << linear_z << "   rw: " << angular_w << endl);
+  ROS_INFO_STREAM("pos and vel: "
+                  << "px:  " << position[0] << "   pz: " << position[2]
+                  << "   pw: " << position_w * 57.3 << "  vx:  " << linear_x
+                  << "   vz: " << linear_z << "   rw: " << angular_w << endl);
 
   // publish_odomtery(position[0], position[2], position_w, linear_x, linear_z,
   //                  angular_w);
