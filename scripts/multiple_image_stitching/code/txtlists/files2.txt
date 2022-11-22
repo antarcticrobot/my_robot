@@ -1,3 +1,0 @@
-/home/yr/catkin_ws/src/my_robot/scripts/input/images_for_multiple_image_stitching/1.jpg
-/home/yr/catkin_ws/src/my_robot/scripts/input/images_for_multiple_image_stitching/2.jpg
-/home/yr/catkin_ws/src/my_robot/scripts/input/images_for_multiple_image_stitching/3.jpg
