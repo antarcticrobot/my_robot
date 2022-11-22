@@ -46,17 +46,12 @@ float WHEEL_PI = 3.141693; // pi
 
 float WHEEL_L = 0.680; //左右轮子的间距
 
-struct timeval time_val; // time varible
-struct timezone tz;
-double time_stamp;
 serial::Serial ros_ser;
 ros::Publisher odom_pub;
 ros::Publisher chatter_pub;
 
 bool switches[4][10];
 double edges[10][2];
-#define TARGET_NUM 10
-double target_locations[4][TARGET_NUM];
 
 bool fixedPointSwitches[4] = {false, false, false, false};
 uint32_t parkStartTime[4];
@@ -90,7 +85,7 @@ union IntData // union的作用为实现char数组和int16数据类型之间的�
 {
   int16_t int16_dat;
   unsigned char byte_data[2];
-} speed_rpm, imu;
+} speed_rpm;
 
 void cmd_vel_callback(const geometry_msgs::Twist::ConstPtr &msg);
 void send_speed_to_chassis(float x, float y, float w);
@@ -109,7 +104,6 @@ void motion_test(int count, bool fixedPointSwitches);
 
 int main(int argc, char **argv)
 {
-  bool uart_recive_flag;
   string sub_cmdvel_topic, pub_odom_topic, dev;
   int buad, time_out, hz;
   ros::init(argc, argv, "mickx4");
@@ -167,8 +161,7 @@ int main(int argc, char **argv)
       std_msgs::String serial_data;
       serial_data.data = ros_ser.read(ros_ser.available());
 
-      string str_tem;
-      str_tem = serial_data.data;
+      string str_tem = serial_data.data;
       string::size_type pos = str_tem.find("CLEAR_OK", 0);
       if (pos != string::npos)
         init_OK = true;
@@ -187,17 +180,8 @@ int main(int argc, char **argv)
       std_msgs::String serial_data;
       serial_data.data = ros_ser.read(ros_ser.available());
 
-      uart_recive_flag = analy_uart_recive_data(serial_data);
+      analy_uart_recive_data(serial_data);
       calculate_position_for_odometry();
-      // if (uart_recive_flag)
-      // {
-      //   uart_recive_flag = 0;
-      //   calculate_position_for_odometry();
-      // }
-    }
-    else
-    {
-      // ROS_INFO_STREAM("ros_ser.available() false");
     }
 
     // switches[1][4] == true后30秒内，且两个动作完成前，
@@ -208,14 +192,12 @@ int main(int argc, char **argv)
       switches[0][0] = switches[0][1] = false;
       parkStartTime[0] = clock();
     }
-    else if ((switches[0][0] == true && switches[0][1] == true)) // ||
-    // clock() - parkStartTime[0] >= 1000 *1000* 30)
+    else if ((switches[0][0] == true && switches[0][1] == true)) // ||    // clock() - parkStartTime[0] >= 1000 *1000* 30)
     {
       fixedPointSwitches[0] = false;
     }
 
     // send_to_moto(2, 1, 10);
-
     for_show_2022_1106(count);
     // for_show_vel_and_pos(count, fixedPointSwitches[0]);
 
@@ -237,10 +219,6 @@ int main(int argc, char **argv)
 //尝试实现运动过程中，三自由度当前位置的命令行输出
 void motion_test(int count, int tmp, bool fixedPointSwitches)
 {
-  if (tmp == 0)
-  {
-    // ROS_INFO_STREAM("三自由度当前位置"<< vel[0] << " vel[1]: " << vel[1] << " vel[2]: " << vel[2] << " vel[3]: " << vel[3]);
-  }
 }
 //简化相机信号发送，提取出send_cam_flag(bool flag)
 void send_cam_flag(bool flag)
@@ -379,10 +357,9 @@ void clear_odometry_chassis(void)
 {
   uint8_t data_tem[50];
   unsigned char counter = 0;
-  unsigned char cmd;
+  unsigned char cmd = 0xE1;
   unsigned int check = 0;
 
-  cmd = 0xE1;
   data_tem[counter++] = 0xAA;
   data_tem[counter++] = 0x55;
   data_tem[counter++] = cmd;
@@ -451,11 +428,8 @@ bool analy_uart_recive_data(std_msgs::String serial_data)
   for (countFrame = 0; countFrame < header_count; countFrame++)
   {
     len = (reviced_tem[3 + step] + 4 + 3); //第一个帧头的长度
-
-    // cout<<"read head :" <<i<< "      len:   "<<len;
     if (reviced_tem[0 + step] == 0xAA && reviced_tem[1 + step] == 0xFF &&
-        reviced_tem[len - 2 + step] == 0xEF &&
-        reviced_tem[len - 1 + step] == 0xFE)
+        reviced_tem[len - 2 + step] == 0xEF && reviced_tem[len - 1 + step] == 0xFE)
     { //检查帧头帧尾是否完整
 
       ROS_INFO_STREAM("recived a frame");
@@ -609,7 +583,7 @@ void calculate_position_for_odometry(void)
   linear_z = vel[0];
   angular_w = vel[2];
 
-  ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << position_w );
+  ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << position_w);
   ROS_INFO_STREAM("vx: " << linear_x << " vz: " << linear_z << " rw: " << angular_w << endl);
 
   // publish_odomtery(position[0], position[2], position_w, linear_x, linear_z,
