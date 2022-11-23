@@ -49,7 +49,7 @@ float WHEEL_PI = 3.141693; // pi
 
 serial::Serial ros_ser;
 ros::Publisher odom_pub;
-ros::Publisher chatter_pub, cam_flag_pub;
+ros::Publisher cam_flag_pub, cam_flag_with_pos_pub;
 
 bool switches[4][10];
 double edges[10][2];
@@ -120,8 +120,8 @@ int main(int argc, char **argv)
 
   ros::Subscriber command_sub = n.subscribe(sub_cmdvel_topic, 10, cmd_vel_callback);
   odom_pub = n.advertise<nav_msgs::Odometry>(pub_odom_topic, 20);
-  chatter_pub = n.advertise<std_msgs::String>("/chatter", 1000);
-  cam_flag_pub = n.advertise<my_robot::msg_for_cam>("/cam_flag", 1000);
+  cam_flag_pub = n.advertise<std_msgs::String>("/cam_flag", 1000);
+  cam_flag_with_pos_pub = n.advertise<my_robot::msg_for_cam>("/cam_flag_with_pos", 1000);
 
   // // 开启串口模块
   // try
@@ -232,17 +232,16 @@ void send_cam_flag(bool flag)
   std_msgs::String msg;
   msg.data = flag ? "START" : "END";
   ROS_INFO("%s", msg.data.c_str());
-  chatter_pub.publish(msg); //向所有订阅 chatter 话题的节点发送消息。
+  cam_flag_pub.publish(msg);
 }
-
 void send_cam_flag_with_pos(bool flag)
 {
   my_robot::msg_for_cam msg;
   msg.mode = flag ? "START" : "END";
   msg.x = position[0];
   msg.z = position[2];
-  // ROS_INFO(msg);
-  cam_flag_pub.publish(msg); //向所有订阅 chatter 话题的节点发送消息。
+  msg.w = position_w;
+  cam_flag_with_pos_pub.publish(msg);
 }
 
 //最基础的展示，只是确认速度和位置模式正常
@@ -601,34 +600,26 @@ void publish_odomtery(float position_x, float position_z, float oriention,
   geometry_msgs::Quaternion odom_quat;              //四元数变量
   nav_msgs::Odometry odom;                          //定义里程计对象
 
+  //坐标（tf）
   //里程计的偏航角需要转换成四元数才能发布
   odom_quat = tf::createQuaternionMsgFromYaw(oriention); //将偏航角转换成四元数
-
-  //载入坐标（tf）变换时间戳
   odom_trans.header.stamp = ros::Time::now();
-  //发布坐标变换的父子坐标系
   odom_trans.header.frame_id = "odom";
   odom_trans.child_frame_id = "base_link";
-  // tf位置数据：x,y,z,方向
   odom_trans.transform.translation.x = position_x;
   odom_trans.transform.translation.z = position_z;
   odom_trans.transform.rotation = odom_quat;
-  //发布tf坐标变化
   odom_broadcaster.sendTransform(odom_trans);
 
-  //载入里程计时间戳
+  //里程计
   odom.header.stamp = ros::Time::now();
-  //里程计的父子坐标系
   odom.header.frame_id = "odom";
   odom.child_frame_id = "base_link";
-  //里程计位置数据：x,y,z,方向
   odom.pose.pose.position.x = position_x;
   odom.pose.pose.position.z = position_z;
   odom.pose.pose.orientation = odom_quat;
-  //载入线速度和角速度
   odom.twist.twist.linear.x = vel_linear_x;
   odom.twist.twist.linear.z = vel_linear_z;
   odom.twist.twist.angular.z = vel_angular_w;
-  //发布里程计
   odom_pub.publish(odom);
 }
