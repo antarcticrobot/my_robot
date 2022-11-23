@@ -569,7 +569,7 @@ void calculate_position_for_odometry(void)
   ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << position_w);
   ROS_INFO_STREAM("vx: " << linear_x << " vz: " << linear_z << " rw: " << angular_w << endl);
 
-  publish_odomtery(position[0], position[2], position_w, linear_x, linear_z, angular_w);
+  publish_odomtery(-position[0]*10, -position[2], -position_w, linear_x, linear_z, angular_w);
 }
 
 /**
@@ -595,7 +595,6 @@ void publish_odomtery(float position_x, float position_z, float oriention,
   odom_trans.child_frame_id = "base_link";
   // tf位置数据：x,y,z,方向
   odom_trans.transform.translation.x = position_x;
-  odom_trans.transform.translation.y = 0.0;
   odom_trans.transform.translation.z = position_z;
   odom_trans.transform.rotation = odom_quat;
   //发布tf坐标变化
@@ -608,7 +607,6 @@ void publish_odomtery(float position_x, float position_z, float oriention,
   odom.child_frame_id = "base_link";
   //里程计位置数据：x,y,z,方向
   odom.pose.pose.position.x = position_x;
-  odom.pose.pose.position.y = 0.0;
   odom.pose.pose.position.z = position_z;
   odom.pose.pose.orientation = odom_quat;
   //载入线速度和角速度
