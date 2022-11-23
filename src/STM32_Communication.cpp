@@ -29,12 +29,19 @@
 
 #include <fstream>
 
+#include "my_robot/msg_for_cam.h"
+
 using namespace std;
 using namespace boost::asio; //定义一个命名空间，用于后面的读写操作
 
-//减速比 2006电机减速比为1:36
-//减速比 3508电机减速比为1:19
-float RATIO[4] = {36.0, 19.0, 1.0, 1.0};
+float distances[3];
+float distances_last[3];
+float position[3];
+float position_screw = -1.0, position_w = 0;
+float min_interval[3] = {0.001, 0.001, 0.0001};
+float max_interval[3] = {1.0, 1.0, 1.0};
+
+float RATIO[4] = {36.0, 19.0, 1.0, 1.0};       //减速比 2006电机减速比为1:36, 3508电机减速比为1:19
 float WHEEL_D[4] = {0.06, 0.012, 0.0667, 0.1}; //轮子直径  m
 float HYPOTENUSE = 0.15;
 float SCREW_PITCH = 0.004;
@@ -42,7 +49,7 @@ float WHEEL_PI = 3.141693; // pi
 
 serial::Serial ros_ser;
 ros::Publisher odom_pub;
-ros::Publisher chatter_pub;
+ros::Publisher chatter_pub, cam_flag_pub;
 
 bool switches[4][10];
 double edges[10][2];
@@ -94,6 +101,7 @@ void publish_odomtery(float position_x, float position_z, float oriention,
 void for_show_2022_1106(int count);
 void for_show_vel_and_pos(int count, bool fixedPointSwitches);
 void send_cam_flag(bool flag);
+void send_cam_flag_with_pos(bool flag);
 void motion_test(int count, bool fixedPointSwitches);
 
 int main(int argc, char **argv)
@@ -113,56 +121,57 @@ int main(int argc, char **argv)
   ros::Subscriber command_sub = n.subscribe(sub_cmdvel_topic, 10, cmd_vel_callback);
   odom_pub = n.advertise<nav_msgs::Odometry>(pub_odom_topic, 20);
   chatter_pub = n.advertise<std_msgs::String>("/chatter", 1000);
+  cam_flag_pub = n.advertise<my_robot::msg_for_cam>("/cam_flag", 1000);
 
-  // 开启串口模块
-  try
-  {
-    ros_ser.setPort(dev);
-    ros_ser.setBaudrate(buad);
-    serial::Timeout to = serial::Timeout::simpleTimeout(1000);
-    to.inter_byte_timeout = 1;
-    to.read_timeout_constant = 5;
-    to.read_timeout_multiplier = 0;
-    ros_ser.setTimeout(to);
-    ros_ser.open();
-    ros_ser.flushInput(); //清空缓冲区数据
-  }
-  catch (serial::IOException &e)
-  {
-    ROS_ERROR_STREAM("Unable to open port ");
-    return -1;
-  }
-  if (ros_ser.isOpen())
-  {
-    ros_ser.flushInput(); //清空缓冲区数据
-    ROS_INFO_STREAM("Serial Port opened");
-  }
-  else
-  {
-    return -1;
-  }
+  // // 开启串口模块
+  // try
+  // {
+  //   ros_ser.setPort(dev);
+  //   ros_ser.setBaudrate(buad);
+  //   serial::Timeout to = serial::Timeout::simpleTimeout(1000);
+  //   to.inter_byte_timeout = 1;
+  //   to.read_timeout_constant = 5;
+  //   to.read_timeout_multiplier = 0;
+  //   ros_ser.setTimeout(to);
+  //   ros_ser.open();
+  //   ros_ser.flushInput(); //清空缓冲区数据
+  // }
+  // catch (serial::IOException &e)
+  // {
+  //   ROS_ERROR_STREAM("Unable to open port ");
+  //   return -1;
+  // }
+  // if (ros_ser.isOpen())
+  // {
+  //   ros_ser.flushInput(); //清空缓冲区数据
+  //   ROS_INFO_STREAM("Serial Port opened");
+  // }
+  // else
+  // {
+  //   return -1;
+  // }
 
   ros::Rate loop_rate(hz);
 
-  clear_odometry_chassis();
-  bool init_OK = true;
-  while (!init_OK)
-  {
-    clear_odometry_chassis();
-    ROS_INFO_STREAM("Clear odometry ..... ");
-    if (ros_ser.available())
-    {
-      std_msgs::String serial_data;
-      serial_data.data = ros_ser.read(ros_ser.available());
+  // clear_odometry_chassis();
+  // bool init_OK = true;
+  // while (!init_OK)
+  // {
+  //   clear_odometry_chassis();
+  //   ROS_INFO_STREAM("Clear odometry ..... ");
+  //   if (ros_ser.available())
+  //   {
+  //     std_msgs::String serial_data;
+  //     serial_data.data = ros_ser.read(ros_ser.available());
 
-      string str_tem = serial_data.data;
-      string::size_type pos = str_tem.find("CLEAR_OK", 0);
-      if (pos != string::npos)
-        init_OK = true;
-    }
-    sleep(1);
-  }
-  ROS_INFO_STREAM("clear odometry successful(mickx4_bringup.cpp) !");
+  //     string str_tem = serial_data.data;
+  //     string::size_type pos = str_tem.find("CLEAR_OK", 0);
+  //     if (pos != string::npos)
+  //       init_OK = true;
+  //   }
+  //   sleep(1);
+  // }
+  // ROS_INFO_STREAM("clear odometry successful(mickx4_bringup.cpp) !");
   int count = 0;
   int temp = 0;
 
@@ -192,8 +201,11 @@ int main(int argc, char **argv)
     }
 
     // send_to_moto(2, 1, 10);
-    for_show_2022_1106(count);
+    // for_show_2022_1106(count);
     // for_show_vel_and_pos(count, fixedPointSwitches[0]);
+
+    publish_odomtery(count * 0.1, 0, 0, 1, 0, 0);
+    send_cam_flag_with_pos(true);
 
     temp++;
     if (temp == 200)
@@ -221,6 +233,16 @@ void send_cam_flag(bool flag)
   msg.data = flag ? "START" : "END";
   ROS_INFO("%s", msg.data.c_str());
   chatter_pub.publish(msg); //向所有订阅 chatter 话题的节点发送消息。
+}
+
+void send_cam_flag_with_pos(bool flag)
+{
+  my_robot::msg_for_cam msg;
+  msg.mode = flag ? "START" : "END";
+  msg.x = position[0];
+  msg.z = position[2];
+  // ROS_INFO(msg);
+  cam_flag_pub.publish(msg); //向所有订阅 chatter 话题的节点发送消息。
 }
 
 //最基础的展示，只是确认速度和位置模式正常
@@ -511,12 +533,6 @@ bool analy_uart_recive_data(std_msgs::String serial_data)
  * @function 利用里程计数据实现位置估计
  *
  */
-float distances[3];
-float distances_last[3];
-float position[3];
-float position_screw = -1.0, position_w = 0;
-float min_interval[3] = {0.001, 0.001, 0.0001};
-float max_interval[3] = {1.0, 1.0, 1.0};
 void calculate_position_for_odometry(void)
 {
   float distances_delta[3];
@@ -569,7 +585,7 @@ void calculate_position_for_odometry(void)
   ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << position_w);
   ROS_INFO_STREAM("vx: " << linear_x << " vz: " << linear_z << " rw: " << angular_w << endl);
 
-  publish_odomtery(position[0], position[2], position_w, linear_x, linear_z, angular_w);
+  publish_odomtery(-position[0] * 10, -position[2], -position_w, linear_x, linear_z, angular_w);
 }
 
 /**
@@ -595,7 +611,6 @@ void publish_odomtery(float position_x, float position_z, float oriention,
   odom_trans.child_frame_id = "base_link";
   // tf位置数据：x,y,z,方向
   odom_trans.transform.translation.x = position_x;
-  odom_trans.transform.translation.y = 0.0;
   odom_trans.transform.translation.z = position_z;
   odom_trans.transform.rotation = odom_quat;
   //发布tf坐标变化
@@ -608,7 +623,6 @@ void publish_odomtery(float position_x, float position_z, float oriention,
   odom.child_frame_id = "base_link";
   //里程计位置数据：x,y,z,方向
   odom.pose.pose.position.x = position_x;
-  odom.pose.pose.position.y = 0.0;
   odom.pose.pose.position.z = position_z;
   odom.pose.pose.orientation = odom_quat;
   //载入线速度和角速度
