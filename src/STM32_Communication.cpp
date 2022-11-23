@@ -1,7 +1,5 @@
 /**
- * 接受cmd_vel 话题的数据，将其转化成转速指令
- * 然后下发到底盘的STM32控制器中
-
+ * 将指令下发到底盘的STM32控制器中
  */
 
 #include <math.h>
@@ -30,8 +28,6 @@
 #include <boost/bind.hpp>
 
 #include <fstream>
-#include <iostream>
-#include <sstream>
 
 using namespace std;
 using namespace boost::asio; //定义一个命名空间，用于后面的读写操作
@@ -485,23 +481,16 @@ bool analy_uart_recive_data(std_msgs::String serial_data)
         }
 
         ROS_INFO_STREAM("recived motor data, number:" << countFrame);
-        // 打印四个电机的转速、转角、温度等信息
-        // ROS_INFO_STREAM("M " << j << "  counter: "
-        //                      << motor_upload_counter.int32_dat
-        //                      << "  t_a: " << moto_chassis[j].total_angle
-        //                      << "  n: " << moto_chassis[j].round_cnt
-        //                      << " rpm: " << moto_chassis[j].speed_rpm
-        //                      << "  a: " << moto_chassis[j].angle);
+        // // 打印四个电机的转速、转角、温度等信息
+        // ROS_INFO_STREAM("M " << j << "  counter: " << motor_upload_counter.int32_dat
+        //                      << "  t_a: " << moto_chassis[j].total_angle << "  n: " << moto_chassis[j].round_cnt
+        //                      << " rpm: " << moto_chassis[j].speed_rpm << "  a: " << moto_chassis[j].angle);
         // ROS_INFO_STREAM("M " << j << "  Temp: " << moto_chassis[j].Temp
-        //                      << "  microswitches: "
-        //                      << moto_chassis[j].microswitches
+        //                      << "  microswitches: " << moto_chassis[j].microswitches
         //                      << "  switches[][0]: " << (switches[j][0])
-        //                      << "  switches[][1]: "
-        //                      << (switches[j][1] == true ? 1 : 0));
+        //                      << "  switches[][1]: " << (switches[j][1] == true ? 1 : 0));
 
-        // ROS_INFO_STREAM("M "
-        //                 << "  edges[][0]: " << edges[j][0]
-        //                 << "  edges[][1]: " << edges[j][1]);
+        // ROS_INFO_STREAM("edges[][0]: " << edges[j][0] << "  edges[][1]: " << edges[j][1]);
       }
       else
       {
@@ -549,9 +538,7 @@ void calculate_position_for_odometry(void)
       distances_delta[i] = 0;
   }
 
-  ROS_INFO_STREAM("distances_delta[0]: " << distances_delta[0]
-                                         << " distances_delta[1]: " << distances_delta[1]
-                                         << " distances_delta[2]: " << distances_delta[2]);
+  ROS_INFO_STREAM("distances_delta[0]: " << distances_delta[0] << " distances_delta[1]: " << distances_delta[1] << " distances_delta[2]: " << distances_delta[2]);
 
   position_delta[0] = distances_delta[1];
   position[0] += position_delta[0];
