@@ -237,7 +237,7 @@ void send_cam_flag(bool flag)
 void send_cam_flag_with_pos(bool flag)
 {
   my_robot::msg_for_cam msg;
-  msg.mode = flag ? "START" : "END";
+  msg.mode = flag ? "LOC" : "END";
   msg.x = position[0];
   msg.z = position[2];
   msg.w = position_w;

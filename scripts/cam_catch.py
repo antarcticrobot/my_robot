@@ -8,6 +8,7 @@ import numpy as np
 import rospy
 from ctypes import *
 from std_msgs.msg import String
+from my_robot.msg import msg_for_cam
 
 sys.path.append("/home/yr/catkin_ws/src/my_robot/scripts/MvImport")
 from MvCameraControl_class import *
@@ -15,12 +16,12 @@ from MvCameraControl_class import *
 img_w = 1920
 img_h = 1080
 img_c = 3
-cam = MvCamera()
+cam = None
 data_buf = None
 nPayloadSize = None
 
 
-def get_and_process_img(stFrameInfo, cam=0, pData=0, nDataSize=0):
+def get_and_process_img(imgLoc, stFrameInfo, cam=0, pData=0, nDataSize=0):
     ret = cam.MV_CC_GetOneFrameTimeout(pData, nDataSize, stFrameInfo, 1000)
     if ret == 0:
         temp = np.asarray(pData).reshape((img_h, img_w, img_c))
@@ -31,17 +32,20 @@ def get_and_process_img(stFrameInfo, cam=0, pData=0, nDataSize=0):
         if not os.path.exists(filepath):
             os.makedirs(filepath)
         filename = datetime.datetime.strftime(now, '%Y-%m-%d-%H-%M-%S')
+        filename += imgLoc
         cv2.imwrite(filepath + "/" + filename + ".jpg", temp)
     else:
         print("no data[0x%x]" % ret)
 
 
 def doMsg(msg):
-    if (str.find(msg.data, "START") >= 0):
-        print(msg.data)
+    if (str.find(msg.mode, "LOC") >= 0):
+        print(msg.mode, msg.x, msg.z, msg.w)
+        imgLoc = "_%d_%d_%d" % (msg.x, msg.z, msg.w)
+
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
-        get_and_process_img(stFrameInfo, cam, data_buf, nPayloadSize)
+        get_and_process_img(imgLoc, stFrameInfo, cam, data_buf, nPayloadSize)
 
 
 def prepare_cam():
@@ -82,7 +86,7 @@ def prepare_cam():
         print("no cam error!")
         sys.exit()
 
-    # ch:选择设备并创建句柄| en:Select device and create handle
+    cam = MvCamera()
     stDeviceList = cast(deviceList.pDeviceInfo[int(
         nConnectionNum)], POINTER(MV_CC_DEVICE_INFO)).contents
     ret = cam.MV_CC_CreateHandle(stDeviceList)
@@ -90,19 +94,16 @@ def prepare_cam():
         print("create handle fail! ret[0x%x]" % ret)
         sys.exit()
 
-    # ch:打开设备 | en:Open device
     ret = cam.MV_CC_OpenDevice(MV_ACCESS_Exclusive, 0)
     if ret != 0:
         print("open device fail! ret[0x%x]" % ret)
         sys.exit()
 
-    # ch:设置触发模式为off | en:Set trigger mode as off
     ret = cam.MV_CC_SetEnumValue("TriggerMode", MV_TRIGGER_MODE_OFF)
     if ret != 0:
         print("set trigger mode fail! ret[0x%x]" % ret)
         sys.exit()
 
-    # ch:获取数据包大小 | en:Get payload size
     stParam = MVCC_INTVALUE()
     memset(byref(stParam), 0, sizeof(MVCC_INTVALUE))
     ret = cam.MV_CC_GetIntValue("PayloadSize", stParam)
@@ -147,7 +148,8 @@ if __name__ == "__main__":
     prepare_cam()
 
     rospy.init_node("listener_p")
-    sub = rospy.Subscriber("chatter", String, doMsg, queue_size=10)
+    sub = rospy.Subscriber("cam_flag_with_pos", msg_for_cam,
+                           doMsg, queue_size=10)
     rospy.spin()
 
     # 不会运行到这里。没想好cam的清理应该放到哪里。
