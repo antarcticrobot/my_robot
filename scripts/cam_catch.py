@@ -36,40 +36,31 @@ def work_thread(cam=0, pData=0, nDataSize=0):
         if g_bExit == True:
             break
 
-# opencv转换显示
+
+def get_and_process_img(stFrameInfo, cam=0, pData=0, nDataSize=0):
+    global flag
+    ret = cam.MV_CC_GetOneFrameTimeout(pData, nDataSize, stFrameInfo, 1000)
+    print('----', stFrameInfo.enPixelType)
+    if ret == 0:
+        temp = np.asarray(pData).reshape((img_h, img_w, img_c))
+        temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
+        if flag == True:
+            now = datetime.datetime.now()
+            filepath = "/home/robot/MVS_Pictures/" + \
+                datetime.datetime.strftime(now, '%Y-%m-%d')
+            if not os.path.exists(filepath):
+                os.makedirs(filepath)
+            filename = datetime.datetime.strftime(now, '%Y-%m-%d-%H-%M-%S')
+            cv2.imwrite(filepath + "/" + filename + ".jpg", temp)
+    else:
+        print("no data[0x%x]" % ret)
 
 
 def work_thread_rgb82bgr(cam=0, pData=0, nDataSize=0):
-    global flag
     stFrameInfo = MV_FRAME_OUT_INFO_EX()
     memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
     while True:
-        ret = cam.MV_CC_GetOneFrameTimeout(pData, nDataSize, stFrameInfo, 1000)
-        print('----', stFrameInfo.enPixelType)
-        if ret == 0:
-            if stFrameInfo.enPixelType == 'PixelType_Gvsp_RGB8_Packed':
-                print('stFrameInfo.enPixelType==PixelType_Gvsp_RGB8_Packed')
-            # else:
-            #     print("图像输出格式不是BGR8,请先使用MVS软件设置相机默认输出图像格式为BGR8....")
-            temp = np.asarray(pData).reshape((img_h, img_w, img_c))
-            temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
-
-            if flag == True:
-                filepath = "/home/robot/MVS_Pictures/" + \
-                    datetime.datetime.strftime(
-                        datetime.datetime.now(), '%Y-%m-%d')
-                if not os.path.exists(filepath):
-                    os.makedirs(filepath)
-                filename = datetime.datetime.strftime(
-                    datetime.datetime.now(), '%Y-%m-%d-%H-%M-%S')
-                cv2.imwrite(filepath + "/" + filename + ".jpg", temp)
-
-            cv2.namedWindow("opencv转换显示", cv2.WINDOW_NORMAL)
-            cv2.imshow('opencv转换显示', temp)
-            cv2.waitKey(1)
-
-        else:
-            print("no data[0x%x]" % ret)
+        get_and_process_img(stFrameInfo, cam, pData, nDataSize)
         if g_bExit == True:
             break
 
@@ -156,7 +147,7 @@ if __name__ == "__main__":
 
     nConnectionNum = 0
     if int(nConnectionNum) >= deviceList.nDeviceNum:
-        print("intput error!")
+        print("no cam error!")
         sys.exit()
 
     # ch:创建相机实例 | en:Creat Camera Object
