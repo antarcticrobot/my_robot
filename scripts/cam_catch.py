@@ -11,7 +11,7 @@ import rospy
 from ctypes import *
 from std_msgs.msg import String
 
-sys.path.append("/home/robot/catkin_ws/src/my_robot/scripts/MvImport")
+sys.path.append("/home/yr/catkin_ws/src/my_robot/scripts/MvImport")
 from MvCameraControl_class import *
 
 g_bExit = False
@@ -38,31 +38,32 @@ def work_thread(cam=0, pData=0, nDataSize=0):
 
 
 def get_and_process_img(stFrameInfo, cam=0, pData=0, nDataSize=0):
-    global flag
     ret = cam.MV_CC_GetOneFrameTimeout(pData, nDataSize, stFrameInfo, 1000)
-    print('----', stFrameInfo.enPixelType)
     if ret == 0:
         temp = np.asarray(pData).reshape((img_h, img_w, img_c))
         temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
-        if flag == True:
-            now = datetime.datetime.now()
-            filepath = "/home/robot/MVS_Pictures/" + \
-                datetime.datetime.strftime(now, '%Y-%m-%d')
-            if not os.path.exists(filepath):
-                os.makedirs(filepath)
-            filename = datetime.datetime.strftime(now, '%Y-%m-%d-%H-%M-%S')
-            cv2.imwrite(filepath + "/" + filename + ".jpg", temp)
+        now = datetime.datetime.now()
+        filepath = "/home/yr/MVS_Pictures/" + \
+            datetime.datetime.strftime(now, '%Y-%m-%d')
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
+        filename = datetime.datetime.strftime(now, '%Y-%m-%d-%H-%M-%S')
+        cv2.imwrite(filepath + "/" + filename + ".jpg", temp)
     else:
         print("no data[0x%x]" % ret)
 
 
-def work_thread_rgb82bgr(cam=0, pData=0, nDataSize=0):
-    stFrameInfo = MV_FRAME_OUT_INFO_EX()
-    memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
-    while True:
-        get_and_process_img(stFrameInfo, cam, pData, nDataSize)
-        if g_bExit == True:
-            break
+cam = None
+data_buf = None
+nPayloadSize = None
+
+
+def doMsg(msg):
+    if (str.find(msg.data, "START") >= 0):
+        print(msg.data)
+        stFrameInfo = MV_FRAME_OUT_INFO_EX()
+        memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
+        get_and_process_img(stFrameInfo, cam, data_buf, nPayloadSize)
 
 
 def press_any_key_exit():
@@ -80,19 +81,7 @@ def press_any_key_exit():
         termios.tcsetattr(fd, termios.TCSANOW, old_ttyinfo)
 
 
-def doMsg(msg):
-    global flag
-    if (str.find(msg.data, "START") >= 0):
-        flag = True
-    elif (str.find(msg.data, "END") >= 0):
-        flag = False
-
-
 if __name__ == "__main__":
-
-    rospy.init_node("listener_p")
-    sub = rospy.Subscriber("chatter", String, doMsg, queue_size=10)
-
     SDKVersion = MvCamera.MV_CC_GetSDKVersion()
     print("SDKVersion[0x%x]" % SDKVersion)
 
@@ -202,21 +191,11 @@ if __name__ == "__main__":
     # 将PayloadSize的uint数据转为可供numpy处理的数据，后面就可以用numpy将其转化为numpy数组格式。
     data_buf = (c_ubyte * nPayloadSize)()
 
-    try:
-        # 有些代码可能会在data_buf前面加上byteref，如果这样做的话，就会将数据转为浮点型，
-        # 而opencv需要的是整型，会报错，所以这里就不需要转化了
-        #hThreadHandle = threading.Thread(target=work_thread_rgb82bgr, args=(cam, byref(data_buf), nPayloadSize))
-        hThreadHandle = threading.Thread(
-            target=work_thread_rgb82bgr, args=(cam, data_buf, nPayloadSize))
-        hThreadHandle.start()
-    except:
-        print("error: unable to start thread")
+    rospy.init_node("listener_p")
+    sub = rospy.Subscriber("chatter", String, doMsg, queue_size=10)
 
     print("press a key to stop grabbing.")
     press_any_key_exit()
-
-    g_bExit = True
-    hThreadHandle.join()
 
     # ch:停止取流 | en:Stop grab image
     ret = cam.MV_CC_StopGrabbing()
