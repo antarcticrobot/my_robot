@@ -34,7 +34,7 @@ def get_time():
     return now
 
 
-filepath = "./2022_11_28_1030_tqyb15"
+filepath = "./2022_11_29_1100_tqyb10"
 #filepath = "."
 
 # Color Tracking Thresholds (Grayscale Min, Grayscale Max)
