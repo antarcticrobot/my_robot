@@ -18,17 +18,17 @@ def show_temperature_distribution(img, x, y, w, h):
     print(x+w, 120, y, y+h)
 
     tmpArr = img[y:y+h, 0:x]
-    g = np.max(tmpArr)
+    g = np.mean(tmpArr)
     ans1 = map_g_to_temp(g)
     if (w > 0 and h > 0):
         tmpArr = img[y:y+h, x:x+w]
-        g = np.max(tmpArr)
+        g = np.mean(tmpArr)
         ans2 = map_g_to_temp(g)
     else:
         ans2 = None
     if (x+w < 120):
         tmpArr = img[y:y+h, x+w:120]
-        g = np.max(tmpArr)
+        g = np.mean(tmpArr)
         ans3 = map_g_to_temp(g)
     else:
         ans3 = None

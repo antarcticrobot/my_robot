@@ -48,8 +48,8 @@ def ShapeDetection(img, imgContour):
 
 
 def process_img(srcPath, dstPath, fileName):
-    img = cv2.imread(srcPath+fileName+'.pgm',0)
-    imgGray = img#cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    img = cv2.imread(srcPath+fileName+'.pgm', 0)
+    imgGray = img  # cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     imgContour = imgGray.copy()
     ret, imgBinary = cv2.threshold(
         imgGray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_TRIANGLE)
@@ -85,12 +85,7 @@ print(collectList1)
 
 fig = plt.figure(figsize=(4, 4), dpi=300)
 x_lable = [int(each)/1000 for each in filenames]
-# print(len(filenames))
-# print(len(x_lable))
-# print(len(collectList))
-plt.plot(x_lable, collectList1, marker='o', label="collectList1")
-plt.plot(x_lable, collectList2, marker='D', label="collectList2")
-plt.plot(x_lable, collectList3, marker='*', label="collectList3")
-plt.plot()
+plt.plot(x_lable, collectList1, marker='o', label="up")
+plt.plot(x_lable, collectList2, marker='D', label="target")
+plt.plot(x_lable, collectList3, marker='*', label="below")
 plt.show()
-# fig.savefig("画布")
