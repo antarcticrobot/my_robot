@@ -34,8 +34,8 @@ def get_time():
     return now
 
 
-filepath = "./2022_11_29_1100_tqyb10"
-#filepath = "."
+# filepath = "./2022_11_30_1400_tqyb0"
+filepath = "."
 
 # Color Tracking Thresholds (Grayscale Min, Grayscale Max)
 # 145对应30摄氏度，200对应45摄氏度

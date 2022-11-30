@@ -2,7 +2,10 @@ import cv2
 import matplotlib.pyplot as plt
 from helper import *
 
-collectList = []
+
+collectList1 = []
+collectList2 = []
+collectList3 = []
 
 
 def ShapeDetection(img, imgContour):
@@ -25,24 +28,29 @@ def ShapeDetection(img, imgContour):
         x, y, w, h = cv2.boundingRect(approx)
         objType = get_shape_name(CornerNum, w, h)
         # tmp=map_g_to_temp(np.mean(imgContour[x:x+w, y:y+h]))
-        tmp = map_g_to_temp(np.max(imgContour))
-        collectList.append(tmp)
+        # tmp = map_g_to_temp(np.max(imgContour))
+        # collectList.append(tmp)
 
-        show_temperature_distribution(imgContour, x, y, w, h)
+        ans1, ans2, ans3 = show_temperature_distribution(
+            imgContour, x, y, w, h)
+        collectList1.append(ans1)
+        collectList2.append(ans2)
+        collectList3.append(ans3)
 
         cv2.rectangle(imgContour, (x, y), (x+w, y+h), (0, 0, 255), 2)
         cv2.putText(imgContour, objType, (x+(w//2), y+(h//2)),
                     cv2.FONT_HERSHEY_COMPLEX, 0.4, (0, 0, 0), 1)
         print(CornerNum, area)
     else:
-        collectList.append(0)
+        collectList1.append(0)
+        collectList2.append(0)
+        collectList3.append(0)
 
 
 def process_img(srcPath, dstPath, fileName):
-    img = cv2.imread(srcPath+fileName+'.pgm')
-    imgContour = img.copy()
-
-    imgGray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    img = cv2.imread(srcPath+fileName+'.pgm',0)
+    imgGray = img#cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    imgContour = imgGray.copy()
     ret, imgBinary = cv2.threshold(
         imgGray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_TRIANGLE)
 
@@ -71,14 +79,18 @@ print(filenames)
 for fileName in filenames:
     process_img(srcPath, dstPath, fileName)
 
-print(collectList)
+print(collectList1)
+print(collectList1)
+print(collectList1)
 
 fig = plt.figure(figsize=(4, 4), dpi=300)
 x_lable = [int(each)/1000 for each in filenames]
-print(len(filenames))
-print(len(x_lable))
-print(len(collectList))
-plt.plot(filenames, collectList)
+# print(len(filenames))
+# print(len(x_lable))
+# print(len(collectList))
+plt.plot(x_lable, collectList1, marker='o', label="collectList1")
+plt.plot(x_lable, collectList2, marker='D', label="collectList2")
+plt.plot(x_lable, collectList3, marker='*', label="collectList3")
 plt.plot()
 plt.show()
 # fig.savefig("画布")
