@@ -1,3 +1,5 @@
+# 对一个时间序列的侧墙通风口数据，寻找代表通风口的矩形，并计算与通风口等宽的竖直条中，其上、其中、其下三块的平均温度
+
 import cv2
 import matplotlib.pyplot as plt
 from helper import *
@@ -23,8 +25,8 @@ def ShapeDetection(img, imgContour, list1, list2, list3):
         x, y, w, h = cv2.boundingRect(approx)
         objType = get_shape_name(CornerNum, w, h)
 
-        ans1, ans2, ans3 = show_temperature_distribution(
-            imgContour, x, y, w, h)
+        ans1, ans2, ans3 = cal_for_up_mid_down_of_vent(
+            imgContour, x, y, w, h, np.mean)
         list1.append(ans1)
         list2.append(ans2)
         list3.append(ans3)
@@ -60,26 +62,24 @@ def process_img(srcPath, dstPath, fileName, list1, list2, list3):
     cv2.imwrite(dstPath+fileName+'_Contour.jpg', imgContour)
 
 
-collectList1 = []
-collectList2 = []
-collectList3 = []
+collectLists = [[], [], []]
 path = '/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17'
 srcPath = path+'/raw/'
 midPath = path+'/middleFile/'
 dstPath = path+'/result/'
-listName = './img_lists/vent.txt'
+listName = './img_lists/2022_11_28_1100_tqyb17/vent.txt'
 
 fp = open(listName, 'r')
 filenames = [each.rstrip('\r\n') for each in fp.readlines()]
 for fileName in filenames:
     process_img(srcPath, dstPath, fileName,
-                collectList1, collectList2, collectList3)
+                collectLists[0], collectLists[1], collectLists[2])
 
 fig = plt.figure(figsize=(4, 4), dpi=300)
 x_lable = [int(each)/1000 for each in filenames]
-plt.plot(x_lable, collectList1, marker='o', label="up")
-plt.plot(x_lable, collectList2, marker='D', label="target")
-plt.plot(x_lable, collectList3, marker='*', label="below")
+plt.plot(x_lable, collectLists[0], marker='o', label="up")
+plt.plot(x_lable, collectLists[1], marker='D', label="target")
+plt.plot(x_lable, collectLists[2], marker='*', label="below")
 plt.xlabel('time')
 plt.ylabel('temperature')
 plt.xticks(np.arange(0, 4800, 1000))
