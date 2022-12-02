@@ -2,12 +2,8 @@ import cv2
 import matplotlib.pyplot as plt
 from helper import *
 
-collectList1 = []
-collectList2 = []
-collectList3 = []
 
-
-def ShapeDetection(img, imgContour):
+def ShapeDetection(img, imgContour, list1, list2, list3):
     contours, hierarchy = cv2.findContours(
         img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
@@ -29,21 +25,21 @@ def ShapeDetection(img, imgContour):
 
         ans1, ans2, ans3 = show_temperature_distribution(
             imgContour, x, y, w, h)
-        collectList1.append(ans1)
-        collectList2.append(ans2)
-        collectList3.append(ans3)
+        list1.append(ans1)
+        list2.append(ans2)
+        list3.append(ans3)
 
         cv2.rectangle(imgContour, (x, y), (x+w, y+h), (0, 0, 255), 2)
         cv2.putText(imgContour, objType, (x+(w//2), y+(h//2)),
                     cv2.FONT_HERSHEY_COMPLEX, 0.4, (0, 0, 0), 1)
         print(CornerNum, area)
     else:
-        collectList1.append(0)
-        collectList2.append(0)
-        collectList3.append(0)
+        list1.append(0)
+        list2.append(0)
+        list3.append(0)
 
 
-def process_img(srcPath, dstPath, fileName):
+def process_img(srcPath, dstPath, fileName, list1, list2, list3):
     imgGray = cv2.imread(srcPath+fileName+'.pgm', 0)
     imgContour = imgGray.copy()
     ret, imgBinary = cv2.threshold(
@@ -54,7 +50,7 @@ def process_img(srcPath, dstPath, fileName):
     imgErod = cv2.erode(imgDilate, conv_kernel)
 
     imgCanny = cv2.Canny(imgErod, 60, 60)
-    ShapeDetection(imgCanny, imgContour)
+    ShapeDetection(imgCanny, imgContour, list1, list2, list3)
 
     cv2.imwrite(midPath+fileName+'_Gray.jpg', imgGray)
     cv2.imwrite(midPath+fileName+'_Binary.jpg', imgBinary)
@@ -64,6 +60,9 @@ def process_img(srcPath, dstPath, fileName):
     cv2.imwrite(dstPath+fileName+'_Contour.jpg', imgContour)
 
 
+collectList1 = []
+collectList2 = []
+collectList3 = []
 path = '/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17'
 srcPath = path+'/raw/'
 midPath = path+'/middleFile/'
@@ -72,12 +71,9 @@ listName = './img_lists/vent.txt'
 
 fp = open(listName, 'r')
 filenames = [each.rstrip('\r\n') for each in fp.readlines()]
-# print(filenames)
 for fileName in filenames:
-    process_img(srcPath, dstPath, fileName)
-# print(collectList1)
-# print(collectList1)
-# print(collectList1)
+    process_img(srcPath, dstPath, fileName,
+                collectList1, collectList2, collectList3)
 
 fig = plt.figure(figsize=(4, 4), dpi=300)
 x_lable = [int(each)/1000 for each in filenames]
