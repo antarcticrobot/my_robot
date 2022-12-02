@@ -2,7 +2,6 @@ import cv2
 import matplotlib.pyplot as plt
 from helper import *
 
-
 collectList1 = []
 collectList2 = []
 collectList3 = []
@@ -27,9 +26,6 @@ def ShapeDetection(img, imgContour):
         CornerNum = len(approx)
         x, y, w, h = cv2.boundingRect(approx)
         objType = get_shape_name(CornerNum, w, h)
-        # tmp=map_g_to_temp(np.mean(imgContour[x:x+w, y:y+h]))
-        # tmp = map_g_to_temp(np.max(imgContour))
-        # collectList.append(tmp)
 
         ans1, ans2, ans3 = show_temperature_distribution(
             imgContour, x, y, w, h)
@@ -48,23 +44,25 @@ def ShapeDetection(img, imgContour):
 
 
 def process_img(srcPath, dstPath, fileName):
-    img = cv2.imread(srcPath+fileName+'.pgm', 0)
-    imgGray = img  # cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    imgGray = cv2.imread(srcPath+fileName+'.pgm', 0)
     imgContour = imgGray.copy()
     ret, imgBinary = cv2.threshold(
         imgGray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_TRIANGLE)
 
     conv_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
-    img_dilate = cv2.dilate(imgBinary, conv_kernel)
-    img_erod = cv2.erode(img_dilate, conv_kernel)
+    imgDilate = cv2.dilate(imgBinary, conv_kernel)
+    imgErod = cv2.erode(imgDilate, conv_kernel)
 
-    imgCanny = cv2.Canny(img_erod, 60, 60)
+    imgCanny = cv2.Canny(imgErod, 60, 60)
     ShapeDetection(imgCanny, imgContour)
 
     cv2.imwrite(midPath+fileName+'_Gray.jpg', imgGray)
     cv2.imwrite(midPath+fileName+'_Binary.jpg', imgBinary)
+    cv2.imwrite(midPath+fileName+'_Dilate.jpg', imgDilate)
+    cv2.imwrite(midPath+fileName+'_Erod.jpg', imgErod)
     cv2.imwrite(midPath+fileName+'_Canny.jpg', imgCanny)
     cv2.imwrite(dstPath+fileName+'_Contour.jpg', imgContour)
+
 
 
 path = '/home/yr/热成像数据_存档/2022_11_30_1100_tqyb0'
