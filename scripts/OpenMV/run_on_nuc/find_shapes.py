@@ -80,4 +80,8 @@ x_lable = [int(each)/1000 for each in filenames]
 plt.plot(x_lable, collectList1, marker='o', label="up")
 plt.plot(x_lable, collectList2, marker='D', label="target")
 plt.plot(x_lable, collectList3, marker='*', label="below")
+plt.xlabel('time')
+plt.ylabel('temperature')
+plt.xticks(np.arange(0, 4800, 1000))
+plt.yticks(np.arange(20, 36, 1))
 plt.show()
