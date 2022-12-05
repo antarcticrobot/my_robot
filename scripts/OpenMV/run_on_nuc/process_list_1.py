@@ -76,11 +76,11 @@ def process_img(srcPath, dstPath, fileName, lists):
     cv2.imwrite(dstPath+fileName+'_Contour.jpg', imgContour)
 
 
-collectLists = []
 path = '/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17'
 srcPath, midPath, dstPath = get_full_paths(path)
 listName = './img_lists/2022_11_28_1100_tqyb17/vent.txt'
 
+collectLists = []
 fp = open(listName, 'r')
 filenames = [each.rstrip('\r\n') for each in fp.readlines()]
 for fileName in filenames:
