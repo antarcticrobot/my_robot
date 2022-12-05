@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from helper import *
 
 
-def ShapeDetection(img, imgContour, list1, list2, list3):
+def ShapeDetection(img, imgContour, lists):
     contours, hierarchy = cv2.findContours(
         img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
@@ -25,23 +25,19 @@ def ShapeDetection(img, imgContour, list1, list2, list3):
         x, y, w, h = cv2.boundingRect(approx)
         objType = get_shape_name(CornerNum, w, h)
 
-        ans1, ans2, ans3 = cal_for_up_mid_down_of_vent(
+        ans = cal_for_up_mid_down_of_vent(
             imgContour, x, y, w, h, np.mean)
-        list1.append(ans1)
-        list2.append(ans2)
-        list3.append(ans3)
+        lists.append(ans)
 
         cv2.rectangle(imgContour, (x, y), (x+w, y+h), (0, 0, 255), 2)
         cv2.putText(imgContour, objType, (x+(w//2), y+(h//2)),
                     cv2.FONT_HERSHEY_COMPLEX, 0.4, (0, 0, 0), 1)
         print(CornerNum, area)
     else:
-        list1.append(0)
-        list2.append(0)
-        list3.append(0)
+        lists.append([0, 0, 0])
 
 
-def process_img(srcPath, dstPath, fileName, list1, list2, list3):
+def process_img(srcPath, dstPath, fileName, lists):
     imgGray = cv2.imread(srcPath+fileName+'.pgm', 0)
     imgContour = imgGray.copy()
     ret, imgBinary = cv2.threshold(
@@ -52,7 +48,7 @@ def process_img(srcPath, dstPath, fileName, list1, list2, list3):
     imgErod = cv2.erode(imgDilate, conv_kernel)
 
     imgCanny = cv2.Canny(imgErod, 60, 60)
-    ShapeDetection(imgCanny, imgContour, list1, list2, list3)
+    ShapeDetection(imgCanny, imgContour, lists)
 
     cv2.imwrite(midPath+fileName+'_Gray.jpg', imgGray)
     cv2.imwrite(midPath+fileName+'_Binary.jpg', imgBinary)
@@ -62,7 +58,7 @@ def process_img(srcPath, dstPath, fileName, list1, list2, list3):
     cv2.imwrite(dstPath+fileName+'_Contour.jpg', imgContour)
 
 
-collectLists = [[], [], []]
+collectLists = []
 path = '/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17'
 srcPath = path+'/raw/'
 midPath = path+'/middleFile/'
@@ -73,13 +69,16 @@ fp = open(listName, 'r')
 filenames = [each.rstrip('\r\n') for each in fp.readlines()]
 for fileName in filenames:
     process_img(srcPath, dstPath, fileName,
-                collectLists[0], collectLists[1], collectLists[2])
+                collectLists)
 
 fig = plt.figure(figsize=(4, 4), dpi=300)
 x_lable = [int(each)/1000 for each in filenames]
-plt.plot(x_lable, collectLists[0], marker='o', label="up")
-plt.plot(x_lable, collectLists[1], marker='D', label="target")
-plt.plot(x_lable, collectLists[2], marker='*', label="below")
+
+collectLists = np.array(collectLists)
+
+plt.plot(x_lable, collectLists[:, 0].flatten(), marker='o', label="up")
+plt.plot(x_lable, collectLists[:, 1].flatten(), marker='D', label="target")
+plt.plot(x_lable, collectLists[:, 2].flatten(), marker='*', label="below")
 plt.xlabel('time')
 plt.ylabel('temperature')
 plt.xticks(np.arange(0, 4800, 1000))
