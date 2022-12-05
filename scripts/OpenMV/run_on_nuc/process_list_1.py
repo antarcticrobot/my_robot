@@ -5,6 +5,27 @@ import matplotlib.pyplot as plt
 from helper import *
 
 
+def cal_for_up_mid_down_of_vent(img, x, y, w, h, fuc):
+    if (h <= 0):
+        return None, None, None
+    if (x > 0):
+        tmpArr = img[y:y+h, 0:x]
+        ans1 = map_g_to_temp(fuc(tmpArr))
+    else:
+        ans1 = None
+    if (w > 0):
+        tmpArr = img[y:y+h, x:x+w]
+        ans2 = map_g_to_temp(fuc(tmpArr))
+    else:
+        ans2 = None
+    if (x+w < 120):
+        tmpArr = img[y:y+h, x+w:120]
+        ans3 = map_g_to_temp(fuc(tmpArr))
+    else:
+        ans3 = None
+    return ans1, ans2, ans3
+
+
 def ShapeDetection(img, imgContour, lists):
     contours, hierarchy = cv2.findContours(
         img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
