@@ -1,7 +1,5 @@
 /**
- * 接受cmd_vel 话题的数据，将其转化成转速指令
- * 然后下发到底盘的STM32控制器中
-
+ * 将指令下发到底盘的STM32控制器中
  */
 
 #include <math.h>
@@ -30,33 +28,31 @@
 #include <boost/bind.hpp>
 
 #include <fstream>
-#include <iostream>
-#include <sstream>
+
+#include "my_robot/msg_for_cam.h"
 
 using namespace std;
 using namespace boost::asio; //定义一个命名空间，用于后面的读写操作
 
-//减速比 2006电机减速比为1:36
-//减速比 3508电机减速比为1:19
-float RATIO[4] = {36.0, 19.0, 1.0, 1.0};
+float distances[3];
+float distances_last[3];
+float position[3];
+float position_screw = -1.0, position_w = 0;
+float min_interval[3] = {0.001, 0.001, 0.0001};
+float max_interval[3] = {1.0, 1.0, 1.0};
+
+float RATIO[4] = {36.0, 19.0, 1.0, 1.0};       //减速比 2006电机减速比为1:36, 3508电机减速比为1:19
 float WHEEL_D[4] = {0.06, 0.012, 0.0667, 0.1}; //轮子直径  m
 float HYPOTENUSE = 0.15;
 float SCREW_PITCH = 0.004;
 float WHEEL_PI = 3.141693; // pi
 
-float WHEEL_L = 0.680; //左右轮子的间距
-
-struct timeval time_val; // time varible
-struct timezone tz;
-double time_stamp;
 serial::Serial ros_ser;
 ros::Publisher odom_pub;
-ros::Publisher chatter_pub;
+ros::Publisher cam_flag_pub, cam_flag_with_pos_pub;
 
 bool switches[4][10];
 double edges[10][2];
-#define TARGET_NUM 10
-double target_locations[4][TARGET_NUM];
 
 bool fixedPointSwitches[4] = {false, false, false, false};
 uint32_t parkStartTime[4];
@@ -90,7 +86,7 @@ union IntData // union的作用为实现char数组和int16数据类型之间的�
 {
   int16_t int16_dat;
   unsigned char byte_data[2];
-} speed_rpm, imu;
+} speed_rpm;
 
 void cmd_vel_callback(const geometry_msgs::Twist::ConstPtr &msg);
 void send_speed_to_chassis(float x, float y, float w);
@@ -105,11 +101,11 @@ void publish_odomtery(float position_x, float position_z, float oriention,
 void for_show_2022_1106(int count);
 void for_show_vel_and_pos(int count, bool fixedPointSwitches);
 void send_cam_flag(bool flag);
+void send_cam_flag_with_pos(bool flag);
 void motion_test(int count, bool fixedPointSwitches);
 
 int main(int argc, char **argv)
 {
-  bool uart_recive_flag;
   string sub_cmdvel_topic, pub_odom_topic, dev;
   int buad, time_out, hz;
   ros::init(argc, argv, "mickx4");
@@ -124,58 +120,58 @@ int main(int argc, char **argv)
 
   ros::Subscriber command_sub = n.subscribe(sub_cmdvel_topic, 10, cmd_vel_callback);
   odom_pub = n.advertise<nav_msgs::Odometry>(pub_odom_topic, 20);
-  chatter_pub = n.advertise<std_msgs::String>("/chatter", 1000);
+  cam_flag_pub = n.advertise<std_msgs::String>("/cam_flag", 1000);
+  cam_flag_with_pos_pub = n.advertise<my_robot::msg_for_cam>("/cam_flag_with_pos", 1000);
 
-  // 开启串口模块
-  try
-  {
-    ros_ser.setPort(dev);
-    ros_ser.setBaudrate(buad);
-    serial::Timeout to = serial::Timeout::simpleTimeout(1000);
-    to.inter_byte_timeout = 1;
-    to.read_timeout_constant = 5;
-    to.read_timeout_multiplier = 0;
-    ros_ser.setTimeout(to);
-    ros_ser.open();
-    ros_ser.flushInput(); //清空缓冲区数据
-  }
-  catch (serial::IOException &e)
-  {
-    ROS_ERROR_STREAM("Unable to open port ");
-    return -1;
-  }
-  if (ros_ser.isOpen())
-  {
-    ros_ser.flushInput(); //清空缓冲区数据
-    ROS_INFO_STREAM("Serial Port opened");
-  }
-  else
-  {
-    return -1;
-  }
+  // // 开启串口模块
+  // try
+  // {
+  //   ros_ser.setPort(dev);
+  //   ros_ser.setBaudrate(buad);
+  //   serial::Timeout to = serial::Timeout::simpleTimeout(1000);
+  //   to.inter_byte_timeout = 1;
+  //   to.read_timeout_constant = 5;
+  //   to.read_timeout_multiplier = 0;
+  //   ros_ser.setTimeout(to);
+  //   ros_ser.open();
+  //   ros_ser.flushInput(); //清空缓冲区数据
+  // }
+  // catch (serial::IOException &e)
+  // {
+  //   ROS_ERROR_STREAM("Unable to open port ");
+  //   return -1;
+  // }
+  // if (ros_ser.isOpen())
+  // {
+  //   ros_ser.flushInput(); //清空缓冲区数据
+  //   ROS_INFO_STREAM("Serial Port opened");
+  // }
+  // else
+  // {
+  //   return -1;
+  // }
 
   ros::Rate loop_rate(hz);
 
-  clear_odometry_chassis();
-  bool init_OK = true;
-  while (!init_OK)
-  {
-    clear_odometry_chassis();
-    ROS_INFO_STREAM("Clear odometry ..... ");
-    if (ros_ser.available())
-    {
-      std_msgs::String serial_data;
-      serial_data.data = ros_ser.read(ros_ser.available());
+  // clear_odometry_chassis();
+  // bool init_OK = true;
+  // while (!init_OK)
+  // {
+  //   clear_odometry_chassis();
+  //   ROS_INFO_STREAM("Clear odometry ..... ");
+  //   if (ros_ser.available())
+  //   {
+  //     std_msgs::String serial_data;
+  //     serial_data.data = ros_ser.read(ros_ser.available());
 
-      string str_tem;
-      str_tem = serial_data.data;
-      string::size_type pos = str_tem.find("CLEAR_OK", 0);
-      if (pos != string::npos)
-        init_OK = true;
-    }
-    sleep(1);
-  }
-  ROS_INFO_STREAM("clear odometry successful(mickx4_bringup.cpp) !");
+  //     string str_tem = serial_data.data;
+  //     string::size_type pos = str_tem.find("CLEAR_OK", 0);
+  //     if (pos != string::npos)
+  //       init_OK = true;
+  //   }
+  //   sleep(1);
+  // }
+  // ROS_INFO_STREAM("clear odometry successful(mickx4_bringup.cpp) !");
   int count = 0;
   int temp = 0;
 
@@ -187,17 +183,8 @@ int main(int argc, char **argv)
       std_msgs::String serial_data;
       serial_data.data = ros_ser.read(ros_ser.available());
 
-      uart_recive_flag = analy_uart_recive_data(serial_data);
+      analy_uart_recive_data(serial_data);
       calculate_position_for_odometry();
-      // if (uart_recive_flag)
-      // {
-      //   uart_recive_flag = 0;
-      //   calculate_position_for_odometry();
-      // }
-    }
-    else
-    {
-      // ROS_INFO_STREAM("ros_ser.available() false");
     }
 
     // switches[1][4] == true后30秒内，且两个动作完成前，
@@ -208,16 +195,17 @@ int main(int argc, char **argv)
       switches[0][0] = switches[0][1] = false;
       parkStartTime[0] = clock();
     }
-    else if ((switches[0][0] == true && switches[0][1] == true)) // ||
-    // clock() - parkStartTime[0] >= 1000 *1000* 30)
+    else if ((switches[0][0] == true && switches[0][1] == true)) // ||    // clock() - parkStartTime[0] >= 1000 *1000* 30)
     {
       fixedPointSwitches[0] = false;
     }
 
     // send_to_moto(2, 1, 10);
-
-    for_show_2022_1106(count);
+    // for_show_2022_1106(count);
     // for_show_vel_and_pos(count, fixedPointSwitches[0]);
+
+    publish_odomtery(count * 0.1, 0, 0, 1, 0, 0);
+    send_cam_flag_with_pos(true);
 
     temp++;
     if (temp == 200)
@@ -234,13 +222,9 @@ int main(int argc, char **argv)
   ros::shutdown();
   return 1;
 }
-//尝试实现运动过程中，三自由度当前位置的命令行输出
+//尝试实现……
 void motion_test(int count, int tmp, bool fixedPointSwitches)
 {
-  if (tmp == 0)
-  {
-    // ROS_INFO_STREAM("三自由度当前位置"<< vel[0] << " vel[1]: " << vel[1] << " vel[2]: " << vel[2] << " vel[3]: " << vel[3]);
-  }
 }
 //简化相机信号发送，提取出send_cam_flag(bool flag)
 void send_cam_flag(bool flag)
@@ -248,7 +232,16 @@ void send_cam_flag(bool flag)
   std_msgs::String msg;
   msg.data = flag ? "START" : "END";
   ROS_INFO("%s", msg.data.c_str());
-  chatter_pub.publish(msg); //向所有订阅 chatter 话题的节点发送消息。
+  cam_flag_pub.publish(msg);
+}
+void send_cam_flag_with_pos(bool flag)
+{
+  my_robot::msg_for_cam msg;
+  msg.mode = flag ? "LOC" : "END";
+  msg.x = position[0];
+  msg.z = position[2];
+  msg.w = position_w;
+  cam_flag_with_pos_pub.publish(msg);
 }
 
 //最基础的展示，只是确认速度和位置模式正常
@@ -379,10 +372,9 @@ void clear_odometry_chassis(void)
 {
   uint8_t data_tem[50];
   unsigned char counter = 0;
-  unsigned char cmd;
+  unsigned char cmd = 0xE1;
   unsigned int check = 0;
 
-  cmd = 0xE1;
   data_tem[counter++] = 0xAA;
   data_tem[counter++] = 0x55;
   data_tem[counter++] = cmd;
@@ -451,11 +443,8 @@ bool analy_uart_recive_data(std_msgs::String serial_data)
   for (countFrame = 0; countFrame < header_count; countFrame++)
   {
     len = (reviced_tem[3 + step] + 4 + 3); //第一个帧头的长度
-
-    // cout<<"read head :" <<i<< "      len:   "<<len;
     if (reviced_tem[0 + step] == 0xAA && reviced_tem[1 + step] == 0xFF &&
-        reviced_tem[len - 2 + step] == 0xEF &&
-        reviced_tem[len - 1 + step] == 0xFE)
+        reviced_tem[len - 2 + step] == 0xEF && reviced_tem[len - 1 + step] == 0xFE)
     { //检查帧头帧尾是否完整
 
       ROS_INFO_STREAM("recived a frame");
@@ -513,23 +502,16 @@ bool analy_uart_recive_data(std_msgs::String serial_data)
         }
 
         ROS_INFO_STREAM("recived motor data, number:" << countFrame);
-        // 打印四个电机的转速、转角、温度等信息
-        // ROS_INFO_STREAM("M " << j << "  counter: "
-        //                      << motor_upload_counter.int32_dat
-        //                      << "  t_a: " << moto_chassis[j].total_angle
-        //                      << "  n: " << moto_chassis[j].round_cnt
-        //                      << " rpm: " << moto_chassis[j].speed_rpm
-        //                      << "  a: " << moto_chassis[j].angle);
+        // // 打印四个电机的转速、转角、温度等信息
+        // ROS_INFO_STREAM("M " << j << "  counter: " << motor_upload_counter.int32_dat
+        //                      << "  t_a: " << moto_chassis[j].total_angle << "  n: " << moto_chassis[j].round_cnt
+        //                      << " rpm: " << moto_chassis[j].speed_rpm << "  a: " << moto_chassis[j].angle);
         // ROS_INFO_STREAM("M " << j << "  Temp: " << moto_chassis[j].Temp
-        //                      << "  microswitches: "
-        //                      << moto_chassis[j].microswitches
+        //                      << "  microswitches: " << moto_chassis[j].microswitches
         //                      << "  switches[][0]: " << (switches[j][0])
-        //                      << "  switches[][1]: "
-        //                      << (switches[j][1] == true ? 1 : 0));
+        //                      << "  switches[][1]: " << (switches[j][1] == true ? 1 : 0));
 
-        // ROS_INFO_STREAM("M "
-        //                 << "  edges[][0]: " << edges[j][0]
-        //                 << "  edges[][1]: " << edges[j][1]);
+        // ROS_INFO_STREAM("edges[][0]: " << edges[j][0] << "  edges[][1]: " << edges[j][1]);
       }
       else
       {
@@ -550,16 +532,10 @@ bool analy_uart_recive_data(std_msgs::String serial_data)
  * @function 利用里程计数据实现位置估计
  *
  */
-float distances[4];
-float distances_last[4];
-float position[3];
-float position_screw = -1.0, position_w = 0;
-
 void calculate_position_for_odometry(void)
 {
-  //方法１：　　计算每个轮子转动的位移，然后利用Ｆ矩阵合成Ｘ,Y,W三个方向的位移
-  float distances_delta[4];
-  float vel[4];
+  float distances_delta[3];
+  float vel[3];
 
   float position_delta[3];
   float position_w_delta, position_r_delta;
@@ -567,19 +543,17 @@ void calculate_position_for_odometry(void)
 
   ROS_INFO_STREAM("calculate_position_for_odometry");
   //轮子转动的圈数乘以　N*pi*D
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < 3; i++)
   {
     distances_last[i] = distances[i];
-    distances[i] = (moto_chassis[i].round_cnt + (moto_chassis[i].total_angle % 8192) / 8192.0) /
-                   RATIO[i] * WHEEL_PI * WHEEL_D[i];
+    distances[i] = moto_chassis[i].round_cnt + (moto_chassis[i].total_angle % 8192) / 8192.0;
+    distances[i] = distances[i] / RATIO[i] * WHEEL_PI * WHEEL_D[i];
     distances_delta[i] = distances[i] - distances_last[i]; //每个轮子位移的增量
-    if (abs(distances_delta[i]) < 0.001)
+    if (abs(distances_delta[i]) < min_interval[i] || abs(distances_delta[i]) > max_interval[i])
       distances_delta[i] = 0;
   }
 
-  ROS_INFO_STREAM("distances_delta[0]: " << distances_delta[0]
-                                         << " distances_delta[1]: " << distances_delta[1]
-                                         << " distances_delta[2]: " << distances_delta[2]);
+  ROS_INFO_STREAM("distances_delta[0]: " << distances_delta[0] << " distances_delta[1]: " << distances_delta[1] << " distances_delta[2]: " << distances_delta[2]);
 
   position_delta[0] = distances_delta[1];
   position[0] += position_delta[0];
@@ -601,19 +575,16 @@ void calculate_position_for_odometry(void)
   // else if (position_w < -2 * WHEEL_PI)
   //   position_w = position_w + 2 * WHEEL_PI;
 
-  for (int i = 0; i < 4; i++)
-  {
+  for (int i = 0; i < 3; i++)
     vel[i] = (moto_chassis[i].speed_rpm) / RATIO[i] / 60.0 * WHEEL_PI * WHEEL_D[i];
-  }
   linear_x = vel[1];
   linear_z = vel[0];
   angular_w = vel[2];
 
-  ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << position_w );
+  ROS_INFO_STREAM("px: " << position[0] << " pz: " << position[2] << " pw: " << position_w);
   ROS_INFO_STREAM("vx: " << linear_x << " vz: " << linear_z << " rw: " << angular_w << endl);
 
-  // publish_odomtery(position[0], position[2], position_w, linear_x, linear_z,
-  //                  angular_w);
+  publish_odomtery(-position[0] * 10, -position[2], -position_w, linear_x, linear_z, angular_w);
 }
 
 /**
@@ -629,36 +600,26 @@ void publish_odomtery(float position_x, float position_z, float oriention,
   geometry_msgs::Quaternion odom_quat;              //四元数变量
   nav_msgs::Odometry odom;                          //定义里程计对象
 
+  //坐标（tf）
   //里程计的偏航角需要转换成四元数才能发布
   odom_quat = tf::createQuaternionMsgFromYaw(oriention); //将偏航角转换成四元数
-
-  //载入坐标（tf）变换时间戳
   odom_trans.header.stamp = ros::Time::now();
-  //发布坐标变换的父子坐标系
   odom_trans.header.frame_id = "odom";
   odom_trans.child_frame_id = "base_link";
-  // tf位置数据：x,y,z,方向
   odom_trans.transform.translation.x = position_x;
-  odom_trans.transform.translation.y = 0.0;
   odom_trans.transform.translation.z = position_z;
   odom_trans.transform.rotation = odom_quat;
-  //发布tf坐标变化
   odom_broadcaster.sendTransform(odom_trans);
 
-  //载入里程计时间戳
+  //里程计
   odom.header.stamp = ros::Time::now();
-  //里程计的父子坐标系
   odom.header.frame_id = "odom";
   odom.child_frame_id = "base_link";
-  //里程计位置数据：x,y,z,方向
   odom.pose.pose.position.x = position_x;
-  odom.pose.pose.position.y = 0.0;
   odom.pose.pose.position.z = position_z;
   odom.pose.pose.orientation = odom_quat;
-  //载入线速度和角速度
   odom.twist.twist.linear.x = vel_linear_x;
   odom.twist.twist.linear.z = vel_linear_z;
   odom.twist.twist.angular.z = vel_angular_w;
-  //发布里程计
   odom_pub.publish(odom);
 }
