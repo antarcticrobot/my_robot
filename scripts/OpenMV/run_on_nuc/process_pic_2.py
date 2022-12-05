@@ -1,3 +1,5 @@
+# 对一张侧墙通风口的图片，手动找到通风口中心线并绘制温度曲线
+
 import cv2
 import matplotlib.pyplot as plt
 
