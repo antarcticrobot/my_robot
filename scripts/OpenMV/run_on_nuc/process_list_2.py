@@ -23,15 +23,16 @@ def plot_for_max_of_wall(path, ax1):
     ax1.plot(x_lable, collectList, marker='o', markersize=2, linewidth=1)
 
 
-paths = []
-paths.append('/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17')
-paths.append('/home/yr/热成像数据_存档/2022_11_28_1400_tqyb17')
-paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_tqyb0')
-paths.append('/home/yr/热成像数据_存档/2022_11_30_1400_tqyb0')
-paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_2_tqyb0')
+if __name__ == "__main__":
+    paths = []
+    paths.append('/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17')
+    paths.append('/home/yr/热成像数据_存档/2022_11_28_1400_tqyb17')
+    paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_tqyb0')
+    paths.append('/home/yr/热成像数据_存档/2022_11_30_1400_tqyb0')
+    paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_2_tqyb0')
 
-fig = plt.figure(figsize=(4, 4), dpi=300)
-ax1 = fig.add_subplot(111)
-for path in paths:
-    plot_for_max_of_wall(path, ax1)
-plt.show()
+    fig = plt.figure(figsize=(4, 4), dpi=300)
+    ax1 = fig.add_subplot(111)
+    for path in paths:
+        plot_for_max_of_wall(path, ax1)
+    plt.show()

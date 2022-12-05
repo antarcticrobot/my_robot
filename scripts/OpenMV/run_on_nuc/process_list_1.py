@@ -76,25 +76,26 @@ def process_img(srcPath, dstPath, fileName, lists):
     cv2.imwrite(dstPath+fileName+'_Contour.jpg', imgContour)
 
 
-path = '/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17'
-srcPath, midPath, dstPath = get_full_paths(path)
-listName = './img_lists/2022_11_28_1100_tqyb17/vent.txt'
+if __name__ == "__main__":
+    path = '/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17'
+    srcPath, midPath, dstPath = get_full_paths(path)
+    listName = './img_lists/2022_11_28_1100_tqyb17/vent.txt'
 
-collectLists = []
-fp = open(listName, 'r')
-filenames = [each.rstrip('\r\n') for each in fp.readlines()]
-for fileName in filenames:
-    process_img(srcPath, dstPath, fileName, collectLists)
+    collectLists = []
+    fp = open(listName, 'r')
+    filenames = [each.rstrip('\r\n') for each in fp.readlines()]
+    for fileName in filenames:
+        process_img(srcPath, dstPath, fileName, collectLists)
 
-fig = plt.figure(figsize=(4, 4), dpi=300)
-x_lable = [int(each)/1000 for each in filenames]
-collectLists = np.array(collectLists)
+    fig = plt.figure(figsize=(4, 4), dpi=300)
+    x_lable = [int(each)/1000 for each in filenames]
+    collectLists = np.array(collectLists)
 
-plt.plot(x_lable, collectLists[:, 0].flatten(), marker='o', label="up")
-plt.plot(x_lable, collectLists[:, 1].flatten(), marker='D', label="target")
-plt.plot(x_lable, collectLists[:, 2].flatten(), marker='*', label="below")
-plt.xlabel('time')
-plt.ylabel('temperature')
-plt.xticks(np.arange(0, 4800, 1000))
-plt.yticks(np.arange(20, 36, 1))
-plt.show()
+    plt.plot(x_lable, collectLists[:, 0].flatten(), marker='o', label="up")
+    plt.plot(x_lable, collectLists[:, 1].flatten(), marker='D', label="target")
+    plt.plot(x_lable, collectLists[:, 2].flatten(), marker='*', label="below")
+    plt.xlabel('time')
+    plt.ylabel('temperature')
+    plt.xticks(np.arange(0, 4800, 1000))
+    plt.yticks(np.arange(20, 36, 1))
+    plt.show()
