@@ -22,3 +22,10 @@ def get_shape_name(CornerNum, w, h):
     else:
         objType = "N"
     return objType
+
+
+def get_full_paths(path):
+    srcPath = path+'/raw/'
+    midPath = path+'/middleFile/'
+    dstPath = path+'/result/'
+    return srcPath, midPath, dstPath

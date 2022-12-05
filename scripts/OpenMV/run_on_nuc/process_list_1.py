@@ -1,4 +1,4 @@
-# 对一个时间序列的侧墙通风口数据，寻找代表通风口的矩形，并计算与通风口等宽的竖直条中，其上、其中、其下三块的平均温度
+# 对一个时间序列的侧墙通风口数据，寻找代表通风口的矩形，并计算与通风口等宽的竖直条中，其上、其中、其下三块的平均温度或其他
 
 import cv2
 import matplotlib.pyplot as plt
@@ -46,8 +46,7 @@ def ShapeDetection(img, imgContour, lists):
         x, y, w, h = cv2.boundingRect(approx)
         objType = get_shape_name(CornerNum, w, h)
 
-        ans = cal_for_up_mid_down_of_vent(
-            imgContour, x, y, w, h, np.mean)
+        ans = cal_for_up_mid_down_of_vent(imgContour, x, y, w, h, np.mean)
         lists.append(ans)
 
         cv2.rectangle(imgContour, (x, y), (x+w, y+h), (0, 0, 255), 2)
@@ -63,11 +62,9 @@ def process_img(srcPath, dstPath, fileName, lists):
     imgContour = imgGray.copy()
     ret, imgBinary = cv2.threshold(
         imgGray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_TRIANGLE)
-
     conv_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
     imgDilate = cv2.dilate(imgBinary, conv_kernel)
     imgErod = cv2.erode(imgDilate, conv_kernel)
-
     imgCanny = cv2.Canny(imgErod, 60, 60)
     ShapeDetection(imgCanny, imgContour, lists)
 
@@ -81,20 +78,16 @@ def process_img(srcPath, dstPath, fileName, lists):
 
 collectLists = []
 path = '/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17'
-srcPath = path+'/raw/'
-midPath = path+'/middleFile/'
-dstPath = path+'/result/'
+srcPath, midPath, dstPath = get_full_paths(path)
 listName = './img_lists/2022_11_28_1100_tqyb17/vent.txt'
 
 fp = open(listName, 'r')
 filenames = [each.rstrip('\r\n') for each in fp.readlines()]
 for fileName in filenames:
-    process_img(srcPath, dstPath, fileName,
-                collectLists)
+    process_img(srcPath, dstPath, fileName, collectLists)
 
 fig = plt.figure(figsize=(4, 4), dpi=300)
 x_lable = [int(each)/1000 for each in filenames]
-
 collectLists = np.array(collectLists)
 
 plt.plot(x_lable, collectLists[:, 0].flatten(), marker='o', label="up")
