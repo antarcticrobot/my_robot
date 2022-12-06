@@ -29,3 +29,13 @@ def get_full_paths(path):
     midPath = path+'/middleFile/'
     dstPath = path+'/result/'
     return srcPath, midPath, dstPath
+
+
+def get_paths():
+    paths = []
+    paths.append('/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17')
+    paths.append('/home/yr/热成像数据_存档/2022_11_28_1400_tqyb17')
+    paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_tqyb0')
+    paths.append('/home/yr/热成像数据_存档/2022_11_30_1400_tqyb0')
+    paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_2_tqyb0')
+    return paths
