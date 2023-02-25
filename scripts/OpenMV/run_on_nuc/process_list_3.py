@@ -22,8 +22,8 @@ def cal_curve_fit(x, y, func):
     y_pred = [func(i, popt[0], popt[1], popt[2]) for i in x]
     print(popt)
 
-    plot1 = pylab.plot(x, y, '*', label='original values')
-    plot2 = pylab.plot(x, y_pred, 'r', label='fit values')
+    plot1 = pylab.plot(x, y, '*')
+    plot2 = pylab.plot(x, y_pred, 'r')
     pylab.legend(loc=3, borderaxespad=0., bbox_to_anchor=(0, 0))
 
 
@@ -46,4 +46,7 @@ if __name__ == "__main__":
     paths = get_paths()
     for path in paths:
         plot_curve(path, func_log)
+
+    pylab.xlabel('time/s')
+    pylab.ylabel("Temperature/℃")
     pylab.show()

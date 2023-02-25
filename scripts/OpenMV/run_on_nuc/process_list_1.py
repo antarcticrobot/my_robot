@@ -90,12 +90,20 @@ if __name__ == "__main__":
     fig = plt.figure(figsize=(4, 4), dpi=300)
     x_lable = [int(each)/1000 for each in filenames]
     collectLists = np.array(collectLists)
-
-    plt.plot(x_lable, collectLists[:, 0].flatten(), marker='o', label="up")
+    
+    # plt.subplot(121)
+    plt.plot(x_lable, collectLists[:, 0].flatten(), marker='o', label="above")
+    plt.legend("above")
     plt.plot(x_lable, collectLists[:, 1].flatten(), marker='D', label="target")
+    plt.legend("target")
     plt.plot(x_lable, collectLists[:, 2].flatten(), marker='*', label="below")
-    plt.xlabel('time')
-    plt.ylabel('temperature')
+    plt.legend("below")
+
+    plt.xlabel('time/s')
+    plt.ylabel("Temperature/℃")
+    plt.legend(["up","mid","down"])
+
     plt.xticks(np.arange(0, 4800, 1000))
     plt.yticks(np.arange(20, 36, 1))
+    plt.tight_layout()
     plt.show()
