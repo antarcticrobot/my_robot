@@ -16,7 +16,7 @@ def test_para_for_png(img, path_name, cnt):
 
 if __name__ == '__main__':
     path_name = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/421802'
-    save_name = './selected_pic_for_test_compression/output/421802'
+    save_name = './selected_pic_for_test_compression_png/output/421802'
     cur_name = path_name+".bmp"
     img = cv2.imread(cur_name, 0)
 
