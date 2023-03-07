@@ -6,7 +6,7 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 from mpl_toolkits.mplot3d import Axes3D
-from helper import *
+# from helper import *
 
 
 def draw_isotherm_and_3D(X, Y, Z):
@@ -38,15 +38,15 @@ def draw_isotherm(X, Y, Z):
     plt.show()
 
 
-path = '/home/yr/热成像数据_存档/通风口无物品/2022_11_28_1100_tqyb17'
-srcPath = path+'/raw/'
+path = './mask/grabcut/421802_raw.bmp'
+# srcPath = path+'/raw/'
 # fileName = '1325532'
 fileName = '2438350'
-img = cv2.imread(srcPath+fileName+'.pgm', 0)
+img = cv2.imread(path, 0)
 img=cv2.flip(img,0,dst=None)
 
 X, Y = np.meshgrid(range(img.shape[1]), range(img.shape[0]))
-Z = map_g_to_temp(np.array(img))
+Z = img#map_g_to_temp(np.array(img))
 # draw_isotherm_and_3D(X, Y, Z)
 draw_isotherm(X, Y, Z)
 
