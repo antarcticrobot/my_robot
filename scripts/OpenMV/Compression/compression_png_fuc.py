@@ -1,81 +1,74 @@
 import cv2
 import os
+import math
 import numpy as np
 
 
+def print_size(str, file_path):
+    print(str, os.path.getsize(file_path))
+
+
+def do_restrore(result_name, restore_name):
+    cv2.imwrite(restore_name, cv2.imread(result_name, 0))
+    print_size("restore: ", restore_name)
+
+
+def get_two_names(prefix, fuc, divisor):
+    result_name = "{0}_{1}_{2}.png".format(prefix, fuc, divisor)
+    restore_name = "{0}_{1}_{2}_restore.bmp".format(prefix, fuc, divisor)
+    return result_name, restore_name
+
+
 # # 对图像作反色，几乎完全无效
-# def image_reverse(num, save_path, img):
-#     cur_name = save_path+str(num)+"_reverse_"+str(cnt)+".png"
-#     cv2.imwrite(cur_name, 255-img, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-#     size = os.path.getsize(cur_name)
-#     print("png_reverse: ", cnt, " ", size)
-#     return cur_name
-
-
 # # 对图像作除法，效果明显
-# def image_div(num, save_path, img, divisor):
-#     cur_name = save_path+str(num)+"_div"+str(divisor)+'_'+str(cnt)+".png"
-#     cv2.imwrite(cur_name, img/divisor, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-#     size = os.path.getsize(cur_name)
-#     print("png_div: ", cnt, " ", size)
-#     return cur_name
+def image_div(img,  prefix, divisor):
+    result_name, restore_name = get_two_names(prefix, "div", divisor)
+    cv2.imwrite(result_name, img/divisor, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
+    print_size("div result: ", result_name)
+    do_restrore(result_name, restore_name)
+
+
+# 对图像降低分辨率，cv2.pyrDown，太影响破损检测
+def image_pyrDown(img,  prefix, divisor):
+    result_name, restore_name = get_two_names(prefix, "pyrDown", divisor)
+
+    tmp = img
+    for i in range(divisor-1):
+        tmp = cv2.pyrDown(tmp)
+
+    cv2.imwrite(result_name, tmp, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
+    print_size("pyrDown result: ", result_name)
+    do_restrore(result_name, restore_name)
 
 
 # 对图像降低分辨率，直接取左上角，效果明显
-def image_reduce_resolution(num, save_path, img, divisor):
-    cur_name = save_path+str(num)+"_reduce"+str(divisor)+'_'+str(cnt)+".png"
+def image_reduce_resolution(img,  prefix, divisor):
+    result_name, restore_name = get_two_names(prefix, "reduce", divisor)
+
     row = int(120/divisor)
     col = int(160/divisor)
     tmp = np.zeros((row, col))
     for i in range(row):
         for j in range(col):
             tmp[i, j] = (img[i*divisor, j*divisor]).astype(np.uint8)
-    cv2.imwrite(cur_name, tmp, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-    size = os.path.getsize(cur_name)
-    print("png_reduce: ", cnt, " ", size)
-    return cur_name
+
+    cv2.imwrite(result_name, tmp, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
+    print_size("reduce result: ", result_name)
+    do_restrore(result_name, restore_name)
 
 
-# # 对图像降低分辨率，cv2.pyrDown，太影响破损检测
-# def image_pyrDown(num, save_path, img, divisor):
-#     cur_name = "{0}/{1}_{2}_reduce_{3}.png".format(
-#         save_path, num, cnt, divisor)
-#     for i in range(divisor-1):
-#         img = cv2.pyrDown(img)
-#     cv2.imwrite(cur_name, img, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-#     size = os.path.getsize(cur_name)
-#     print("png_pyrDown: ", cnt, " ", size)
-#     return cur_name
+def test_para_for_png(img, num, save_path, cnt):
+    prefix = "{0}/{1}_{2}".format(save_path, num, cnt)
+    png_name = "{0}.png".format(prefix)
 
-
-def test_para_for_png(num, save_path, img, cnt):
-    prefix_name = "{0}/{1}_{2}".format(save_path, num, cnt)
-    cur_name = "{0}.png".format(prefix_name)
-    restore_name = "{0}_restore.bmp".format(prefix_name)
-
-    cv2.imwrite(cur_name, img, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-    size = os.path.getsize(cur_name)
+    cv2.imwrite(png_name, img, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
+    size = os.path.getsize(png_name)
     print("png: ", cnt, " ", size)
 
-    # cv2.imwrite(restore_name, cv2.imread(cur_name, 0))
-
-    # cur_name = image_reverse(num, save_path, img)
-    # cv2.imwrite(restore_name, 255-cv2.imread(cur_name, 0))
-
-    # divisor = 32
-    # cur_name = image_div(num, save_path, img, divisor)
-    # cv2.imwrite(restore_name, cv2.imread(cur_name, 0)*divisor)
-
-    divisor = 2
-    cur_name = image_reduce_resolution(num, save_path, img, divisor)
-    cv2.imwrite(restore_name, cv2.imread(cur_name, 0))
-
-    # divisor = 2
-    # cur_name = image_pyrDown(num, save_path, img, divisor)
-    # cv2.imwrite(restore_name, cv2.imread(cur_name, 0))
-
-    size = os.path.getsize(restore_name)
-    print("restore.bmp: ", size)
+    for divisor in range(1, 4):
+        image_div(img, prefix, int(math.pow(2, divisor)))
+        image_pyrDown(img,  prefix, divisor)
+        image_reduce_resolution(img,  prefix, divisor)
 
 
 if __name__ == '__main__':
@@ -84,11 +77,9 @@ if __name__ == '__main__':
 
     num_list = [421802]
     for num in num_list:
-        cur_name = read_path+str(num)+".bmp"
-        img = cv2.imread(cur_name, 0)
+        bmp_name = read_path+str(num)+".bmp"
+        print_size("bmp: ", bmp_name)
 
-        size = os.path.getsize(cur_name)
-        print("bmp: ", size)
-
+        img = cv2.imread(bmp_name, 0)
         for cnt in range(9, 10):
-            test_para_for_png(num, save_path, img, cnt)
+            test_para_for_png(img, num, save_path, cnt)
