@@ -50,10 +50,9 @@ record_div = []
 record_reduce = []
 start_png_para = 1
 
+
 # # 对图像作反色，几乎完全无效
 # # 对图像作除法，效果明显
-
-
 def image_div(img,  prefix, divisor):
     result_name, restore_name = get_two_names(prefix, "div", divisor)
     cv2.imwrite(result_name, img/divisor, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
@@ -86,10 +85,6 @@ def test_para_for_png(img, num, save_path, cnt):
     record_raw.append(size)
     print("png: ", cnt, " ", size)
 
-    # for divisor in range(2, 3):
-    #     image_div(img, prefix, int(math.pow(2, divisor-1)))
-    #     # image_pyrDown(img,  prefix, divisor)
-    #     image_reduce_resolution(img,  prefix, divisor)
     image_div(img, prefix, 16)
     image_reduce_resolution(img,  prefix, 3)
 
@@ -98,7 +93,7 @@ def print_value(rects, offset):
     for rect in rects:
         height = rect.get_height()
         plt.text(rect.get_x()+rect.get_width()/3. +
-                 offset, 1.02*height, '%s' % (height))
+                 offset, 1.01*height, '%s' % (height))
 
 
 def drawHistogram():
@@ -117,8 +112,8 @@ def drawHistogram():
     plt.ylabel("结果图片大小/Byte", fontsize=my_fontsize)
     rect0 = plt.bar(x - width, record_raw, width=width, label="raw")
     rect1 = plt.bar(x, record_div, width=width, label="div 16")
-    rect2 = plt.bar(x + width, record_reduce, width=width, label="reduce 4")
-    print_value(rect0, -0.13)
+    rect2 = plt.bar(x + width, record_reduce, width=width, label="reduce 3")
+    print_value(rect0, -0.05)
     print_value(rect1, -0.03)
     print_value(rect2, -0.05)
     plt.legend()
