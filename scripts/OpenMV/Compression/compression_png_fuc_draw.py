@@ -6,68 +6,12 @@ import cv2
 import os
 import math
 import numpy as np
-
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-
-
-def print_size(str, file_path):
-    size = os.path.getsize(file_path)
-    # print(str, size)
-    return size
-
-
-def do_restrore(result_name, restore_name):
-    cv2.imwrite(restore_name, cv2.imread(result_name, 0))
-    print_size("restore: ", restore_name)
-
-
-def get_two_names(prefix, fuc, divisor):
-    result_name = "{0}_{1}_{2}.png".format(prefix, fuc, divisor)
-    restore_name = "{0}_{1}_{2}_restore.bmp".format(prefix, fuc, divisor)
-    return result_name, restore_name
-
-
-# 对图像降低分辨率，cv2.pyrDown，太影响破损检测
-def image_pyrDown(img,  prefix, divisor):
-    result_name, restore_name = get_two_names(prefix, "pyrDown", divisor)
-
-    tmp = img
-    for i in range(divisor-1):
-        tmp = cv2.pyrDown(tmp)
-
-    cv2.imwrite(result_name, tmp, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-    print_size("pyrDown result: ", result_name)
-    do_restrore(result_name, restore_name)
+from helpers import *
 
 
 record_div = []
 record_reduce = []
-
-
-# # 对图像作反色，几乎完全无效
-# # 对图像作除法，效果明显
-def image_div(img,  prefix, divisor):
-    result_name, restore_name = get_two_names(prefix, "div", divisor)
-    cv2.imwrite(result_name, img/divisor, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-    record_div.append(print_size("div result: ", result_name))
-    do_restrore(result_name, restore_name)
-
-
-# 对图像降低分辨率，直接取左上角，效果明显
-def image_reduce_resolution(img,  prefix, divisor):
-    result_name, restore_name = get_two_names(prefix, "reduce", divisor)
-
-    row = int(120/divisor)
-    col = int(160/divisor)
-    tmp = np.zeros((row, col))
-    for i in range(row):
-        for j in range(col):
-            tmp[i, j] = (img[i*divisor, j*divisor]).astype(np.uint8)
-
-    cv2.imwrite(result_name, tmp, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-    record_reduce.append(print_size("reduce result: ", result_name))
-    do_restrore(result_name, restore_name)
 
 
 def test_para_for_png(img, num, save_path, cnt):
@@ -79,12 +23,12 @@ def test_para_for_png(img, num, save_path, cnt):
     print("png: ", cnt, " ", size)
 
     for divisor in range(1, 2):
-        image_div(img, prefix, int(math.pow(2, divisor)))
-        image_pyrDown(img,  prefix, divisor)
-        image_reduce_resolution(img,  prefix, divisor)
+        image_div(img, prefix, cnt, int(math.pow(2, divisor)), record_div)
+        image_pyrDown(img,  prefix, cnt, divisor)
+        image_reduce_resolution(img,  prefix, cnt, divisor, record_reduce)
 
 
-def drawHistogram():
+def drawHistogram_2():
     plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
 
@@ -131,7 +75,7 @@ if __name__ == '__main__':
         for cnt in range(1, 10):
             test_para_for_png(img, num, save_path, cnt)
 
-        drawHistogram()
+        drawHistogram_2()
         print(record_div)
         print(record_reduce)
         # record_div.clear()

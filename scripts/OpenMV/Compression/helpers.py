@@ -41,14 +41,12 @@ def image_div(img,  prefix, cnt, divisor, record, jump_restrore=False):
 # 对图像降低分辨率，直接取左上角，效果明显
 def image_reduce_resolution(img,  prefix, cnt, divisor, record, jump_restrore=False):
     result_name, restore_name = get_two_names(prefix, "reduce", divisor)
-
     row = int(120/divisor)
     col = int(160/divisor)
     tmp = np.zeros((row, col))
     for i in range(row):
         for j in range(col):
             tmp[i, j] = (img[i*divisor, j*divisor]).astype(np.uint8)
-
     cv2.imwrite(result_name, tmp, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
     record.append(print_size("reduce result: ", result_name))
     if (jump_restrore == False):
@@ -67,7 +65,7 @@ def image_pyrDown(img,  prefix, cnt, divisor, jump_restrore=False):
         do_restrore(result_name, restore_name)
 
 
-def drawHistogram_3(list1, list2, list3, offset1=-0.05, offset2=-0.03, offset3=-0.05):
+def drawHistogram_3(list1, list2, list3, str1="raw", str2="div", str3="reduce", offset1=-0.05, offset2=-0.03, offset3=-0.05):
     plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
     total_width, n = 0.5, 3   # 柱状图总宽度，有几组数据
@@ -80,9 +78,9 @@ def drawHistogram_3(list1, list2, list3, offset1=-0.05, offset2=-0.03, offset3=-
     plt.xlabel("png压缩级别", fontsize=my_fontsize)
     plt.xticks(x, range(10-len(list1), 10))
     plt.ylabel("结果图片大小/Byte", fontsize=my_fontsize)
-    rect0 = plt.bar(x - width, list1, width=width, label="raw")
-    rect1 = plt.bar(x, list2, width=width, label="div 16")
-    rect2 = plt.bar(x + width, list3, width=width, label="reduce 3")
+    rect0 = plt.bar(x - width, list1, width=width, label=str1)
+    rect1 = plt.bar(x, list2, width=width, label=str2)
+    rect2 = plt.bar(x + width, list3, width=width, label=str3)
     print_value(rect0, offset1)
     print_value(rect1, offset2)
     print_value(rect2, offset3)
