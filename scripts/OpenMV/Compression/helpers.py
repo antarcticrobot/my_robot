@@ -24,8 +24,22 @@ def do_restrore(result_name, restore_name, multi_para=1):
 def print_value(rects, offset):
     for rect in rects:
         height = rect.get_height()
-        plt.text(rect.get_x()+rect.get_width()/3. +
-                 offset, 1.01*height, '%s' % (height))
+        str = '%s' % (height)
+        plt.text(rect.get_x()+rect.get_width() + offset, 1.01*height, str)
+
+
+def print_ratio(rects, offset):
+    for rect in rects:
+        height = rect.get_height()
+        str = '%.3f' % (height)
+        plt.text(rect.get_x()+rect.get_width() + offset, 1.01*height, str)
+
+
+def print_percentage(rects, offset):
+    for rect in rects:
+        height = rect.get_height()
+        str = '%.2f%%' % (height*100)
+        plt.text(rect.get_x()+rect.get_width() + offset, 1.01*height, str)
 
 
 # # 对图像作反色，几乎完全无效

@@ -32,31 +32,23 @@ def drawHistogram_2():
     plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
 
+    my_fontsize = 16
     list1 = record_div
     list2 = record_reduce
-    length = len(list1)
-    x = np.arange(length)   # 横坐标范围
+    x = np.arange(len(list1))   # 横坐标范围
 
     plt.figure()
     total_width, n = 0.5, 2   # 柱状图总宽度，有几组数据
     width = total_width / n   # 单个柱状图的宽度
-    x1 = x - width / 2   # 第一组数据柱状图横坐标起始位置
-    x2 = x1 + width   # 第二组数据柱状图横坐标起始位置
-
     plt.title("")
-    plt.xlabel("png压缩级别")
+    plt.xlabel("png压缩级别", fontsize=my_fontsize)
     plt.xticks(x, range(1, 10))  # 设置x轴刻度显示值
-    plt.ylabel("结果图片大小/Byte")
-    rect1 = plt.bar(x1, list1, width=width, label="div")
-    rect2 = plt.bar(x2, list2, width=width, label="reduce")
-    for rect in rect1:
-        height = rect.get_height()
-        plt.text(rect.get_x()+rect.get_width()/2. -
-                 0.12, 1.02*height, '%s' % (height))
-    for rect in rect2:
-        height = rect.get_height()
-        plt.text(rect.get_x()+rect.get_width()/2. -
-                 0.1, 1.02*height, '%s' % (height))
+    plt.ylabel("结果图片大小/Byte", fontsize=my_fontsize)
+    rect1 = plt.bar(x - width / 2, list1, width=width, label="div")
+    rect2 = plt.bar(x + width / 2, list2, width=width, label="reduce")
+    print_value(rect1, -0.2)
+    print_value(rect2, -0.2)
+
     plt.legend()
     plt.show()
 

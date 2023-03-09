@@ -44,6 +44,6 @@ if __name__ == '__main__':
             test_para_for_png(img, num, save_path, cnt, record_raw)
 
     drawHistogram_3(record_raw, record_div, record_reduce,
-                    "raw", "div", "reduce", -0.13)
+                    "raw", "div", "reduce", -0.18, -0.15, -0.15)
     print(record_div)
     print(record_reduce)
