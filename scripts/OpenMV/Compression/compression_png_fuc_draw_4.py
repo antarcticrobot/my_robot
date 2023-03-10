@@ -11,7 +11,7 @@ from helpers import *
 record_raw = []
 record_div = []
 record_reduce = []
-start_png_para = 9
+start_png_para = 1
 
 
 def test_para_for_png(img, num, save_path, cnt, record):
@@ -23,7 +23,7 @@ def test_para_for_png(img, num, save_path, cnt, record):
     record.append(size)
     print("png: ", cnt, " ", size)
 
-    for divisor in range(1, 5):
+    for divisor in range(3, 4):
         image_div(img, prefix, cnt, int(math.pow(2, divisor-1)), record_div)
         image_pyrDown(img,  prefix, cnt, divisor)
         image_reduce_resolution(img,  prefix, cnt, divisor, record_reduce)
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         img = cv2.imread(bmp_name, 0)
         for cnt in range(start_png_para, 10):
             test_para_for_png(img, num, save_path, cnt, record_raw)
-    drawHistogram_3(record_raw, record_div, record_reduce)
+    drawHistogram_3(record_raw, record_div, record_reduce, "raw", "div", "reduce", -0.25, -0.1, -0.15)
     print(record_raw)
     print(record_div)
     print(record_reduce)

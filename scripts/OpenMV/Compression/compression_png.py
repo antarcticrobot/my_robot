@@ -3,8 +3,12 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from helpers import *
+from matplotlib.ticker import FuncFormatter
+
 
 record = []
+
+
 
 
 def drawHistogram_1(list1):
@@ -14,27 +18,23 @@ def drawHistogram_1(list1):
     plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
     my_fontsize = 16
-    length = len(list1)
-    x = np.arange(length)   # 横坐标范围
     width = 0.5
+    x = np.arange(len(list1))   # 横坐标范围
 
     plt.figure()
     plt.title("")
     plt.xlabel("png压缩级别", fontsize=my_fontsize)
     plt.xticks(x, ["raw", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])  # 设置x轴刻度显示值
+    rect1 = plt.bar(x, list1, width=width)
+
     # plt.ylabel("结果图片大小/Byte", fontsize=my_fontsize)
-    plt.ylabel("压缩比", fontsize=my_fontsize)
-    # plt.ylim((0, 3.5))
-    rect1 = plt.bar(x, list1, width=width, label="div")
+    # print_value(rect1, - 0.4)
+    # plt.ylabel("压缩比", fontsize=my_fontsize)
+    # print_ratio(rect1,- 0.4)
+    plt.ylabel("压缩率/%", fontsize=my_fontsize)
+    plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
+    print_percentage(rect1, - 0.4)
 
-    print_value(rect1,- 0.2)
-    # for rect in rect1:
-    #     height = rect.get_height()
-
-    #     # str='%s' % (height)
-    #     # str='%.3f' % (height)
-    #     str = 
-    #     plt.text(rect.get_x()+rect.get_width()/2. - 0.2, 1.02*height, str)
     plt.legend()
     plt.show()
 
@@ -48,8 +48,7 @@ def test_para_for_png(img, path_name, cnt):
 
     restore_name = path_name+"_"+str(cnt)+"_restore.bmp"
     cv2.imwrite(restore_name, cv2.imread(cur_name, 0))
-    size = os.path.getsize(restore_name)
-    print("restore.bmp: ", size)
+    print_size("restore.bmp: ", restore_name)
 
 
 if __name__ == '__main__':

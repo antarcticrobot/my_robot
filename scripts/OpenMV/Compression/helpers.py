@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 
 def get_two_names(prefix, fuc, divisor):
@@ -79,7 +80,15 @@ def image_pyrDown(img,  prefix, cnt, divisor, jump_restrore=False):
         do_restrore(result_name, restore_name)
 
 
+def to_percent(temp, position):
+    return '%1.0f' % (100*temp) + '%'
+
+
 def drawHistogram_3(list1, list2, list3, str1="raw", str2="div", str3="reduce", offset1=-0.05, offset2=-0.03, offset3=-0.05):
+    list1 = [x/20278 for x in list1]
+    list2 = [x/20278 for x in list2]
+    list3 = [x/20278 for x in list3]
+
     plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
     total_width, n = 0.5, 3   # 柱状图总宽度，有几组数据
@@ -90,13 +99,29 @@ def drawHistogram_3(list1, list2, list3, str1="raw", str2="div", str3="reduce", 
     plt.figure()
     plt.title("")
     plt.xlabel("png压缩级别", fontsize=my_fontsize)
-    plt.xticks(x, range(10-len(list1), 10))
-    plt.ylabel("结果图片大小/Byte", fontsize=my_fontsize)
+    # x_ticks=["raw"]
+    x_ticks = []
+    for num in range(10-len(list1), 10):
+        x_ticks.append(str(num))
+    plt.xticks(x, np.array(x_ticks))
+
+    # plt.ylabel("结果图片大小/Byte", fontsize=my_fontsize)
+    # print_value(rect1, - 0.4)
+    # plt.ylabel("压缩比", fontsize=my_fontsize)
+    # print_ratio(rect1,- 0.4)
+    plt.ylabel("压缩率/%", fontsize=my_fontsize)
+    plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
+
     rect0 = plt.bar(x - width, list1, width=width, label=str1)
     rect1 = plt.bar(x, list2, width=width, label=str2)
     rect2 = plt.bar(x + width, list3, width=width, label=str3)
-    print_value(rect0, offset1)
-    print_value(rect1, offset2)
-    print_value(rect2, offset3)
+
+    # print_value(rect0, offset1)
+    # print_value(rect1, offset2)
+    # print_value(rect2, offset3)
+    print_percentage(rect0, offset1)
+    print_percentage(rect1, offset2)
+    print_percentage(rect2, offset3)
+
     plt.legend()
     plt.show()
