@@ -1,16 +1,7 @@
 import os
 import cv2 as cv
 import matplotlib.pyplot as plt
-
-
-def get_img_num(directionName):
-    num_list = []
-    for parent, dirnames, filenames in os.walk(directionName):
-        for filename in filenames:
-            if filename.lower().endswith('.bmp'):
-                fname1, fname2 = os.path.split(filename)
-                num_list.append(str.split(fname2, '.bmp')[0])
-    return num_list
+from helper import *
 
 
 def get_mask(bmp_name):
@@ -43,6 +34,7 @@ if __name__ == '__main__':
 
     read_path = '/home/yr/catkin_ws/src/my_robot/selected_pic_for_test_pyg/'
     num_list = get_img_num(read_path)
+
 
     print(num_list)
 
