@@ -54,8 +54,8 @@ def image_div(img,  prefix, cnt, divisor, record, jump_restrore=False):
 
 
 # 对图像降低分辨率，直接取左上角，效果明显
-def image_reduce_resolution(img,  prefix, cnt, divisor, record, jump_restrore=False):
-    result_name, restore_name = get_two_names(prefix, "reduce", divisor)
+def image_shrink(img,  prefix, cnt, divisor, record, jump_restrore=False):
+    result_name, restore_name = get_two_names(prefix, "shrink", divisor)
     row = int(120/divisor)
     col = int(160/divisor)
     tmp = np.zeros((row, col))
@@ -63,7 +63,7 @@ def image_reduce_resolution(img,  prefix, cnt, divisor, record, jump_restrore=Fa
         for j in range(col):
             tmp[i, j] = (img[i*divisor, j*divisor]).astype(np.uint8)
     cv2.imwrite(result_name, tmp, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-    record.append(print_size("reduce result: ", result_name))
+    record.append(print_size("shrink result: ", result_name))
     if (jump_restrore == False):
         do_restrore(result_name, restore_name)
 
@@ -81,16 +81,26 @@ def image_pyrDown(img,  prefix, cnt, divisor, jump_restrore=False):
 
 
 def to_percent(temp, position):
-    return '%1.0f' % (100*temp) + '%'
+    return '%1.1f' % (100*temp) + '%'
 
 
-def drawHistogram_3(list1, list2, list3, str1="raw", str2="div", str3="reduce", offset1=-0.05, offset2=-0.03, offset3=-0.05):
+def drawHistogram_3(list1, list2, list3, str1="raw", str2="div", str3="shrink", offset1=-0.05, offset2=-0.03, offset3=-0.05, window_x=8, window_y=6):
+    # list1 = np.array(list1).flatten()
+    # list2 = np.array(list2).flatten()
+    # list3 = np.array(list3).flatten()
+    list1 = np.array(list1).mean(axis=0)
+    list2 = np.array(list2).mean(axis=0)
+    list3 = np.array(list3).mean(axis=0)
+    # list1 = np.array(list1).std(axis=0)
+    # list2 = np.array(list2).std(axis=0)
+    # list3 = np.array(list3).std(axis=0)
     list1 = [x/20278 for x in list1]
     list2 = [x/20278 for x in list2]
     list3 = [x/20278 for x in list3]
 
     plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
+    plt.rcParams['figure.figsize'] = (window_x, window_y)
     total_width, n = 0.5, 3   # 柱状图总宽度，有几组数据
     width = total_width / n   # 单个柱状图的宽度
     my_fontsize = 16
@@ -109,8 +119,14 @@ def drawHistogram_3(list1, list2, list3, str1="raw", str2="div", str3="reduce", 
     # print_value(rect1, - 0.4)
     # plt.ylabel("压缩比", fontsize=my_fontsize)
     # print_ratio(rect1,- 0.4)
-    plt.ylabel("压缩率/%", fontsize=my_fontsize)
+    # plt.ylabel("压缩率/%", fontsize=my_fontsize)
+    plt.ylabel("压缩率均值/%", fontsize=my_fontsize)
     plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
+    plt.ylim((0,0.5))
+
+    # plt.ylabel("压缩率标准差/%", fontsize=my_fontsize)
+    # plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
+    # plt.ylim((0,0.025))
 
     rect0 = plt.bar(x - width, list1, width=width, label=str1)
     rect1 = plt.bar(x, list2, width=width, label=str2)

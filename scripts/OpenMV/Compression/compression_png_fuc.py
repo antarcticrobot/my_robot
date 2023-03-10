@@ -42,8 +42,8 @@ def image_pyrDown(img,  prefix, divisor):
 
 
 # 对图像降低分辨率，直接取左上角，效果明显
-def image_reduce_resolution(img,  prefix, divisor):
-    result_name, restore_name = get_two_names(prefix, "reduce", divisor)
+def image_shrink_resolution(img,  prefix, divisor):
+    result_name, restore_name = get_two_names(prefix, "shrink", divisor)
 
     row = int(120/divisor)
     col = int(160/divisor)
@@ -53,7 +53,7 @@ def image_reduce_resolution(img,  prefix, divisor):
             tmp[i, j] = (img[i*divisor, j*divisor]).astype(np.uint8)
 
     cv2.imwrite(result_name, tmp, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
-    print_size("reduce result: ", result_name)
+    print_size("shrink result: ", result_name)
     do_restrore(result_name, restore_name)
 
 
@@ -68,7 +68,7 @@ def test_para_for_png(img, num, save_path, cnt):
     for divisor in range(1, 4):
         image_div(img, prefix, int(math.pow(2, divisor)))
         image_pyrDown(img,  prefix, divisor)
-        image_reduce_resolution(img,  prefix, divisor)
+        image_shrink_resolution(img,  prefix, divisor)
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ from helpers import *
 
 
 record_div = []
-record_reduce = []
+record_shrink = []
 
 
 def test_para_for_png(img, num, save_path, cnt):
@@ -25,7 +25,7 @@ def test_para_for_png(img, num, save_path, cnt):
     for divisor in range(1, 2):
         image_div(img, prefix, cnt, int(math.pow(2, divisor)), record_div)
         image_pyrDown(img,  prefix, cnt, divisor)
-        image_reduce_resolution(img,  prefix, cnt, divisor, record_reduce)
+        image_shrink(img,  prefix, cnt, divisor, record_shrink)
 
 
 def drawHistogram_2():
@@ -34,7 +34,7 @@ def drawHistogram_2():
 
     my_fontsize = 16
     list1 = record_div
-    list2 = record_reduce
+    list2 = record_shrink
     x = np.arange(len(list1))   # 横坐标范围
 
     plt.figure()
@@ -45,7 +45,7 @@ def drawHistogram_2():
     plt.xticks(x, range(1, 10))  # 设置x轴刻度显示值
     plt.ylabel("结果图片大小/Byte", fontsize=my_fontsize)
     rect1 = plt.bar(x - width / 2, list1, width=width, label="div")
-    rect2 = plt.bar(x + width / 2, list2, width=width, label="reduce")
+    rect2 = plt.bar(x + width / 2, list2, width=width, label="shrink")
     print_value(rect1, -0.2)
     print_value(rect2, -0.2)
 
@@ -69,6 +69,6 @@ if __name__ == '__main__':
 
         drawHistogram_2()
         print(record_div)
-        print(record_reduce)
+        print(record_shrink)
         # record_div.clear()
-        # record_reduce.clear()
+        # record_shrink.clear()
