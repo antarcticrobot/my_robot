@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 from helper import *
 
 
-def get_pyg(src_name, mask_name):
-
+def get_pyg(src_name, mask_name, save_name):
     image = cv2.imread(src_name)
     maskImg = cv2.imread(mask_name, flags=0)  # 读取掩模图像(xupt)
 
@@ -23,7 +22,7 @@ def get_pyg(src_name, mask_name):
     maskOutput = np.where((mask == cv2.GC_BGD) | (mask == cv2.GC_PR_BGD), 0, 1)
     maskGrabCut = 255 - (maskOutput * 255).astype("uint8")
     imgGrabCut = cv2.bitwise_and(image, image, mask=maskGrabCut)
-    cv2.imwrite("./mask/grabcut/421802_raw.bmp", imgGrabCut)
+    cv2.imwrite(save_name, imgGrabCut)
 
     plt.figure(figsize=(10, 6))
     plt.subplot(131), plt.axis('off'), plt.title("Origin image")
@@ -48,4 +47,6 @@ if __name__ == '__main__':
     for num in num_list:
         src_name = read_path+str(num)+".bmp"
         mask_name = mask_path+str(num)+".bmp"
-        get_pyg(src_name, mask_name)
+        save_name = mask_path+'/grabcut/'+str(num)+".bmp"
+
+        get_pyg(src_name, mask_name, save_name)
