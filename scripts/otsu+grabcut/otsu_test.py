@@ -34,10 +34,6 @@ if __name__ == '__main__':
 
     read_path = '/home/yr/catkin_ws/src/my_robot/selected_pic_for_test_pyg/'
     num_list = get_img_num(read_path)
-
-
-    print(num_list)
-
     for num in num_list:
         bmp_name = read_path+str(num)+".bmp"
         # bmp_name = read_path+str(num)

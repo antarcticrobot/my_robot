@@ -3,6 +3,8 @@ import math
 import cv2 as cv
 import numpy as np
 
+import matplotlib.pyplot as plt
+
 
 def get_img_num(directionName):
     num_list = []
@@ -99,3 +101,14 @@ def get_mae(records_real, records_predict):
         return sum([abs(x - y) for x, y in zip(records_real, records_predict)]) / len(records_real)
     else:
         return None
+
+
+def draw_zero_line():
+    xdata = range(0, 160)
+    plt.plot(np.array(xdata), [0 for i in xdata], 'b', label='curvefit values')
+
+
+def draw_image(image):
+    plt.figure()
+    plt.imshow(image)
+    plt.show()

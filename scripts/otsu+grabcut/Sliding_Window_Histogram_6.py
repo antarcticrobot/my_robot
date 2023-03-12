@@ -12,8 +12,8 @@ def draw_maximal_minimal(list1, window_x=8, window_y=6):
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
     plt.rcParams['figure.figsize'] = (window_x, window_y)
     plt.figure()
-    plt.plot(list1)
     list1 = np.array(list1)
+    plt.plot(list1)
     extrema = signal.argrelextrema(list1, np.greater, order=3)
     plt.plot(extrema[0], list1[extrema], 'o', markersize=5)
     extrema = signal.argrelextrema(list1, np.less, order=3)
@@ -22,16 +22,22 @@ def draw_maximal_minimal(list1, window_x=8, window_y=6):
 
 
 if __name__ == '__main__':
-    image = cv2.imread('./mask/grabcut/421802_raw.bmp')
-    # image = cv2.blur(image,(5,5))
+    # read_path = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/'
+    # num_list = ['463202', '470328']
+    read_path = './mask/grabcut/'
+    num_list = ['421802_raw']
 
-    stepSize = 1
-    slice_sets = get_slice(image, stepSize, (1, 120))
+    for num in num_list:
+        bmp_name = read_path+str(num)+".bmp"
+        image = cv2.imread(bmp_name)
+        draw_image(image)
+        image = cv2.blur(image,(3,3))
 
-    maxs = []
-    for img in slice_sets:
-        newvalues = img.flatten()
-        newvalues = [x for x in newvalues if x > 0]
-        maxs.append(get_max(newvalues))
-
-    draw_maximal_minimal(maxs)
+        stepSize = 1
+        slice_sets = get_slice(image, stepSize, (1, 120))
+        maxs = []
+        for img in slice_sets:
+            newvalues = img.flatten()
+            newvalues = [x for x in newvalues if x > 0]
+            maxs.append(get_max(newvalues))
+        draw_maximal_minimal(maxs)
