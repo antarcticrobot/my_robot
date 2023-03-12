@@ -26,15 +26,14 @@ def get_mask(bmp_name):
 
 
 if __name__ == '__main__':
-    # num_list = [1882626, 1884624, 1824640, 2236399, 2426441, 1393595]
     # read_path = '/home/yr/热成像数据_存档/2023_01_03_2110_tqyb4/raw'
+    # num_list = [1882626, 1884624, 1824640, 2236399, 2426441, 1393595]
 
-    # num_list = [421802, 444743]
     # read_path = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/'
+    # num_list = [421802, 444743]
 
     read_path = '/home/yr/catkin_ws/src/my_robot/selected_pic_for_test_pyg/'
     num_list = get_img_num(read_path)
     for num in num_list:
         bmp_name = read_path+str(num)+".bmp"
-        # bmp_name = read_path+str(num)
         get_mask(bmp_name)

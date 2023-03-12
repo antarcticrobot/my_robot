@@ -84,19 +84,12 @@ def to_percent(temp, position):
     return '%1.1f' % (100*temp) + '%'
 
 
-def drawHistogram_3(list1, list2, list3, str1="raw", str2="div", str3="shrink", offset1=-0.05, offset2=-0.03, offset3=-0.05, window_x=8, window_y=6):
-    # list1 = np.array(list1).flatten()
-    # list2 = np.array(list2).flatten()
-    # list3 = np.array(list3).flatten()
-    list1 = np.array(list1).mean(axis=0)
-    list2 = np.array(list2).mean(axis=0)
-    list3 = np.array(list3).mean(axis=0)
-    # list1 = np.array(list1).std(axis=0)
-    # list2 = np.array(list2).std(axis=0)
-    # list3 = np.array(list3).std(axis=0)
-    list1 = [x/20278 for x in list1]
-    list2 = [x/20278 for x in list2]
-    list3 = [x/20278 for x in list3]
+def drawHistogram_3(lists, strs=["raw", "div", "shrink"], offsets=[-0.05, -0.03, -0.05], window_x=8, window_y=6):
+    for i in range(len(lists)):
+        # lists[i] = np.array(lists[i]).flatten()
+        lists[i] = np.array(lists[i]).mean(axis=1)
+        # lists[i] = np.array(lists[i]).std(axis=0)
+        lists[i] = [x/20278 for x in lists[i]]
 
     plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
@@ -104,40 +97,39 @@ def drawHistogram_3(list1, list2, list3, str1="raw", str2="div", str3="shrink", 
     total_width, n = 0.5, 3   # 柱状图总宽度，有几组数据
     width = total_width / n   # 单个柱状图的宽度
     my_fontsize = 16
-    x = np.arange(len(list2))   # 横坐标范围
+    x = np.arange(len(lists[1]))   # 横坐标范围
 
     plt.figure()
     plt.title("")
-    plt.xlabel("png压缩级别", fontsize=my_fontsize)
+    # plt.xlabel("png压缩级别", fontsize=my_fontsize)
+    plt.xlabel("拍摄角度组别", fontsize=my_fontsize)
     # x_ticks=["raw"]
     x_ticks = []
-    for num in range(10-len(list1), 10):
+    # for num in range(10-len(lists[0]), 10):
+    for num in range(1,len(lists[0])+1):
         x_ticks.append(str(num))
     plt.xticks(x, np.array(x_ticks))
 
     # plt.ylabel("结果图片大小/Byte", fontsize=my_fontsize)
-    # print_value(rect1, - 0.4)
+    # print_value(rect[1], - 0.4)
     # plt.ylabel("压缩比", fontsize=my_fontsize)
-    # print_ratio(rect1,- 0.4)
+    # print_ratio(rect[1],- 0.4)
     # plt.ylabel("压缩率/%", fontsize=my_fontsize)
     plt.ylabel("压缩率均值/%", fontsize=my_fontsize)
     plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
-    plt.ylim((0,0.5))
+    plt.ylim((0, 0.5))
 
     # plt.ylabel("压缩率标准差/%", fontsize=my_fontsize)
     # plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
     # plt.ylim((0,0.025))
+    rects = []
+    rects.append(plt.bar(x - width, lists[0], width=width, label=strs[0]))
+    rects.append(plt.bar(x, lists[1], width=width, label=strs[1]))
+    rects.append(plt.bar(x + width, lists[2], width=width, label=strs[2]))
 
-    rect0 = plt.bar(x - width, list1, width=width, label=str1)
-    rect1 = plt.bar(x, list2, width=width, label=str2)
-    rect2 = plt.bar(x + width, list3, width=width, label=str3)
-
-    # print_value(rect0, offset1)
-    # print_value(rect1, offset2)
-    # print_value(rect2, offset3)
-    print_percentage(rect0, offset1)
-    print_percentage(rect1, offset2)
-    print_percentage(rect2, offset3)
+    for i in range(len(lists)):
+        # print_value(rects[i], offsets[i])
+        print_percentage(rects[i], offsets[i])
 
     plt.legend()
     plt.show()

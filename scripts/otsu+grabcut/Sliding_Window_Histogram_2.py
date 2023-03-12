@@ -7,7 +7,6 @@ from helper import *
 
 if __name__ == '__main__':
     image = cv2.imread('./mask/grabcut/421802_raw.bmp')
-
     stepSize = 5
     slice_sets = get_slice(image, stepSize, (10, 120))
 

@@ -11,9 +11,8 @@ if __name__ == '__main__':
     read_path = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/'
 
     for num in num_list:
-        bmp_name = read_path+str(num)+".bmp"
-        image = cv2.imread(bmp_name)
-        
+        image = cv2.imread(read_path+str(num)+".bmp")
+
         stepSize = 5
         windowSize = (10, 120)
         for (x, y, window) in sliding_window(image, stepSize, windowSize):

@@ -7,18 +7,18 @@ from scipy import signal
 from helper import *
 
 
-def draw_maximal_minimal(list1, window_x=8, window_y=6):
-    plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
-    plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
-    plt.rcParams['figure.figsize'] = (window_x, window_y)
+def get_maximal_minimal(list1, window_x=8, window_y=6):
+    prepare_window(window_x, window_y)
+
     plt.figure()
     list1 = np.array(list1)
     plt.plot(list1)
-    extrema = signal.argrelextrema(list1, np.greater, order=3)
-    plt.plot(extrema[0], list1[extrema], 'o', markersize=5)
-    extrema = signal.argrelextrema(list1, np.less, order=3)
-    plt.plot(extrema[0], list1[extrema], 'o', markersize=5)
+    extrema_1 = signal.argrelextrema(list1, np.greater, order=1)
+    plt.plot(extrema_1[0], list1[extrema_1], 'o', markersize=5)
+    extrema_2 = signal.argrelextrema(list1, np.less, order=1)
+    plt.plot(extrema_2[0], list1[extrema_2], 'o', markersize=5)
     plt.show()
+    return extrema_1,extrema_2
 
 
 if __name__ == '__main__':
@@ -28,16 +28,9 @@ if __name__ == '__main__':
     num_list = ['421802_raw']
 
     for num in num_list:
-        bmp_name = read_path+str(num)+".bmp"
-        image = cv2.imread(bmp_name)
-        draw_image(image)
-        image = cv2.blur(image,(3,3))
+        image = cv2.imread(read_path+str(num)+".bmp")
+        # draw_image(image)
+        # image = cv2.blur(image, (3, 3))
 
-        stepSize = 1
-        slice_sets = get_slice(image, stepSize, (1, 120))
-        maxs = []
-        for img in slice_sets:
-            newvalues = img.flatten()
-            newvalues = [x for x in newvalues if x > 0]
-            maxs.append(get_max(newvalues))
-        draw_maximal_minimal(maxs)
+        maxs = get_maxs(image)
+        extrema_1,extrema_2= get_maximal_minimal(maxs)

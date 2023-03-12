@@ -7,10 +7,8 @@ from scipy import signal
 from helper import *
 
 
-def draw_maximal_minimal(list1, window_x=8, window_y=6):
-    plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
-    plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
-    plt.rcParams['figure.figsize'] = (window_x, window_y)
+def get_maximal_minimal(list1, window_x=8, window_y=6):
+    prepare_window(window_x, window_y)
     plt.figure()
     plt.plot(list1)
     peaks = signal.find_peaks(list1, distance=5, prominence=20)
@@ -18,6 +16,7 @@ def draw_maximal_minimal(list1, window_x=8, window_y=6):
         plt.plot(peaks[0][ii],
                  list1[peaks[0][ii]], '*', markersize=10)
     plt.show()
+    return len(peaks[0])
 
 
 if __name__ == '__main__':
@@ -27,19 +26,11 @@ if __name__ == '__main__':
     # num_list = ['421802_raw']
 
     for num in num_list:
-        bmp_name = read_path+str(num)+".bmp"
-        image = cv2.imread(bmp_name)
+        image = cv2.imread(read_path+str(num)+".bmp")
         draw_image(image)
         # image = cv2.blur(image,(5,5))
 
-        stepSize = 1
-        slice_sets = get_slice(image, stepSize, (1, 120))
-
-        maxs = []
-        for img in slice_sets:
-            newvalues = img.flatten()
-            newvalues = [x for x in newvalues if x > 0]
-            maxs.append(get_max(newvalues))
+        maxs = get_maxs(image)
         max_diff = [0]
         for i in range(0, 159):
             if (maxs[i+1] >= maxs[i]):
@@ -48,5 +39,6 @@ if __name__ == '__main__':
                 t = -int(maxs[i]-maxs[i+1])
             max_diff.append(t)
 
-        draw_maximal_minimal(maxs)
+        peaks_num=get_maximal_minimal(maxs)
+        print('{0}.bmp 有{1}个疑似破损点'.format(num,peaks_num))
         # draw_maximal_minimal(max_diff)

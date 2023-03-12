@@ -80,27 +80,24 @@ def get_rms(records):
 
 def get_mse(records_real, records_predict):
     # 均方误差 估计值与真值 偏差
-    if len(records_real) == len(records_predict):
-        return sum([(x - y) ** 2 for x, y in zip(records_real, records_predict)]) / len(records_real)
-    else:
+    if len(records_real) != len(records_predict):
         return None
+    return sum([(x - y) ** 2 for x, y in zip(records_real, records_predict)]) / len(records_real)
 
 
 def get_rmse(records_real, records_predict):
     # 均方根误差：是均方误差的算术平方根
     mse = get_mse(records_real, records_predict)
-    if mse:
-        return math.sqrt(mse)
-    else:
+    if mse < 0:
         return None
+    return math.sqrt(mse)
 
 
 def get_mae(records_real, records_predict):
     # 平均绝对误差
-    if len(records_real) == len(records_predict):
-        return sum([abs(x - y) for x, y in zip(records_real, records_predict)]) / len(records_real)
-    else:
+    if len(records_real) != len(records_predict):
         return None
+    return sum([abs(x - y) for x, y in zip(records_real, records_predict)]) / len(records_real)
 
 
 def draw_zero_line():
@@ -112,3 +109,19 @@ def draw_image(image):
     plt.figure()
     plt.imshow(image)
     plt.show()
+
+
+def prepare_window(window_x, window_y):
+    plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
+    plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
+    plt.rcParams['figure.figsize'] = (window_x, window_y)
+
+
+def get_maxs(image, stepSize=1):
+    slice_sets = get_slice(image, stepSize, (stepSize, 120))
+    maxs = []
+    for img in slice_sets:
+        newvalues = img.flatten()
+        newvalues = [x for x in newvalues if x > 0]
+        maxs.append(get_max(newvalues))
+    return maxs

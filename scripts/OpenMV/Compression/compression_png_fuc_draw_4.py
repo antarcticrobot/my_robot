@@ -33,8 +33,8 @@ if __name__ == '__main__':
     read_path = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/'
     save_path = './selected_pic_for_test_compression_png/output'
 
-    # num_list = [421802, 418473, 461986, 518835, 504573, 663392, 845788]
-    num_list = [421802]
+    num_list = [421802, 418473, 461986, 518835, 504573, 663392, 845788]
+    # num_list = [421802]
     for num in num_list:
         bmp_name = read_path+str(num)+".bmp"
         print_size("bmp: ", bmp_name)
@@ -49,8 +49,8 @@ if __name__ == '__main__':
         record_div.append(list_div)
         record_shrink.append(list_shrink)
 
-    drawHistogram_3(record_raw, record_div, record_shrink,
-                    "raw", "div", "shrink", -0.25, -0.1, -0.15)
+    lists = [record_raw, record_div, record_shrink]
+    drawHistogram_3(lists, ["raw", "div", "shrink"], [-0.25, -0.1, -0.15])
 
     print(record_raw)
     print(record_div)

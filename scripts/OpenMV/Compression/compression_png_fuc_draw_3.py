@@ -1,6 +1,7 @@
 
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# 临界条件即"div 16"+"shrink 3"，在1-9的png压缩级别下
 
 
 import cv2
@@ -48,9 +49,10 @@ if __name__ == '__main__':
         record_div.append(list_div)
         record_shrink.append(list_shrink)
 
-    drawHistogram_3(record_raw, record_div, record_shrink,
-                    # "raw", "div 16", "shrink 3", -0.25, -0.1, -0.15)
-                    "raw", "div 16", "shrink 3", -0.55, -0.15, -0.15)
+    lists = [record_raw, record_div, record_shrink]
+    drawHistogram_3(lists,
+                    # ["raw", "div 16", "shrink 3"], [-0.25, -0.1, -0.15])
+                    ["raw", "div 16", "shrink 3"], [-0.55, -0.15, -0.15])
     print(record_raw)
     print(record_div)
     print(record_shrink)
