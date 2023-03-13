@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from helper import *
 
 
-def get_pyg(src_name, mask_name, save_name):
+def get_pyg(src_name, mask_name, save_name, result_name):
     image = cv2.imread(src_name)
     maskImg = cv2.imread(mask_name, flags=0)  # 读取掩模图像(xupt)
 
@@ -25,14 +25,15 @@ def get_pyg(src_name, mask_name, save_name):
     cv2.imwrite(save_name, imgGrabCut)
 
     plt.figure(figsize=(10, 6))
-    plt.subplot(131), plt.axis('off'), plt.title("Origin image")
+    plt.subplot(131), plt.axis('off'), plt.title("输入图像")
     plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    plt.subplot(132), plt.axis('off'), plt.title("Mask image")
+    plt.subplot(132), plt.axis('off'), plt.title("Mask图片")
     plt.imshow(maskImg, 'gray')
-    plt.subplot(133), plt.axis('off'), plt.title("Output")
+    plt.subplot(133), plt.axis('off'), plt.title("分割结果")
     plt.imshow(cv2.cvtColor(imgGrabCut, cv2.COLOR_BGR2RGB))
     plt.tight_layout()
-    plt.show()
+    plt.savefig(result_name)
+    # plt.show()
 
 
 if __name__ == '__main__':
@@ -43,10 +44,12 @@ if __name__ == '__main__':
 
     read_path = '/home/yr/catkin_ws/src/my_robot/selected_pic_for_test_pyg/'
     mask_path = "./mask/"
+    result_path = mask_path+'/grabcut/'
     num_list = get_img_num(read_path)
     for num in num_list:
         src_name = read_path+str(num)+".bmp"
         mask_name = mask_path+str(num)+".bmp"
-        save_name = mask_path+'/grabcut/'+str(num)+".bmp"
+        save_name = result_path+str(num)+".bmp"
+        result_name = result_path+str(num)+"_plt.png"
 
-        get_pyg(src_name, mask_name, save_name)
+        get_pyg(src_name, mask_name, save_name, result_name)
