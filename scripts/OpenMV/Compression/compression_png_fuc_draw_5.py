@@ -52,7 +52,7 @@ if __name__ == '__main__':
         record_shrink.append(list_shrink)
 
     lists = [record_raw, record_div, record_shrink]
-    drawHistogram_3(lists,  # ["raw", "div 16", "shrink 3"], [-0.25, -0.1, -0.15])
+    drawHistogram_3(lists, "拍摄组别",
                     ["raw", "div 16", "shrink 3"], [-0.35, -0.15, -0.15])
     print(record_raw)
     print(record_div)
