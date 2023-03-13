@@ -50,6 +50,6 @@ if __name__ == '__main__':
         src_name = read_path+str(num)+".bmp"
         mask_name = mask_path+str(num)+".bmp"
         save_name = result_path+str(num)+".bmp"
-        result_name = result_path+str(num)+"_plt.png"
+        result_name = result_path+str(num)+"_cut.png"
 
         get_pyg(src_name, mask_name, save_name, result_name)
