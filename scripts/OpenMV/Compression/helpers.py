@@ -1,5 +1,6 @@
 import os
 import cv2
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
@@ -124,7 +125,6 @@ def drawHistogram_3(lists, xlabel, strs=["raw", "div", "shrink"], offsets=[-0.05
         rect = (plt.bar(x + (-n/2+i)*width,
                 lists[i], width=width, label=strs[i]))
         print_percentage(rect, offsets[i])
-
     plt.legend()
     plt.show()
 
@@ -149,7 +149,6 @@ def draw_Line_3(lists, xlabel, strs=["raw", "div", "shrink"], offsets=[-0.05, -0
 
     plt.ylabel("压缩率/%", fontsize=my_fontsize)
     plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
-    # plt.ylim((0.2, 0.5))
 
     for i in range(n):
         rect = (plt.bar(x + (-n/2+i)*width,
@@ -186,3 +185,24 @@ def get_size_for_folder(pathvar):
         elif os.path.isdir(pathnew):
             size += get_size_for_folder(pathnew)
     return size
+
+
+def my_process_1(img, cnt, prefix, lists):
+    for divisor in range(2, 3):
+        image_div(img, prefix, cnt, int(math.pow(2, divisor-1)), lists[1])
+        image_shrink(img,  prefix, cnt, divisor, lists[2])
+
+
+def my_process_2(img, cnt, prefix, lists):
+    image_div(img, prefix, cnt, 16, lists[1])
+    image_shrink(img,  prefix, cnt, 3, lists[2])
+
+
+def test_para_for_png(img, num, save_path, cnt, lists, fuc):
+    prefix = "{0}/{1}_{2}".format(save_path, num, cnt)
+    png_name = "{0}.png".format(prefix)
+
+    cv2.imwrite(png_name, img, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
+    size = os.path.getsize(png_name)
+    lists[0].append(size)
+    fuc(img, cnt, prefix, lists)

@@ -13,14 +13,14 @@ for i in range(11):
 
 
 def drawHistogram_1(list1, window_x=8, window_y=6):
-    list1 = np.array(list1).mean(axis=1)
-    list1 = [x/20278 for x in list1]
-
     prepare_window(window_x, window_y)
-
     my_fontsize = 16
     width = 0.5
     x = np.arange(len(list1))   # 横坐标范围
+
+    list1 = np.array(list1).mean(axis=1)
+    list1 = [x/20278 for x in list1]
+
 
     plt.figure()
     plt.xlabel("png压缩级别", fontsize=my_fontsize)
