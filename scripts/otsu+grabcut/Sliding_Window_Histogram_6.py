@@ -24,12 +24,14 @@ def get_maximal_minimal(list1, window_x=8, window_y=6):
 if __name__ == '__main__':
     # read_path = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/'
     # num_list = ['463202', '470328']
-    read_path = './mask/grabcut/'
-    num_list = ['421802_raw']
-
+    # read_path = './mask/grabcut/'
+    # num_list = ['421802_raw']
+    read_path = '/home/yr/catkin_ws/src/my_robot/selected_pic_for_test_pyg/'
+    num_list = get_img_num(read_path)
+    
     for num in num_list:
         image = cv2.imread(read_path+str(num)+".bmp")
-        # draw_image(image)
+        draw_image(image)
         # image = cv2.blur(image, (3, 3))
 
         maxs = get_maxs(image)

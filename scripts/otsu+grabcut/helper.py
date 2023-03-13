@@ -118,7 +118,7 @@ def prepare_window(window_x, window_y):
 
 
 def get_maxs(image, stepSize=1):
-    slice_sets = get_slice(image, stepSize, (stepSize, 120))
+    slice_sets = get_slice(image, stepSize, (stepSize, image.shape[0]))
     maxs = []
     for img in slice_sets:
         newvalues = img.flatten()

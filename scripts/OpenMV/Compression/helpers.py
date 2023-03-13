@@ -106,7 +106,7 @@ def drawHistogram_3(lists, strs=["raw", "div", "shrink"], offsets=[-0.05, -0.03,
     # x_ticks=["raw"]
     x_ticks = []
     # for num in range(10-len(lists[0]), 10):
-    for num in range(1,len(lists[0])+1):
+    for num in range(1, len(lists[0])+1):
         x_ticks.append(str(num))
     plt.xticks(x, np.array(x_ticks))
 
