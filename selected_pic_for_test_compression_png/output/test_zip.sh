@@ -1,0 +1,10 @@
+7z a -t7z ./test_7z/421802_0.7z 421802_0.png
+7z a -t7z ./test_7z/421802_1.7z 421802_1.png
+7z a -t7z ./test_7z/421802_2.7z 421802_2.png
+7z a -t7z ./test_7z/421802_3.7z 421802_3.png
+7z a -t7z ./test_7z/421802_4.7z 421802_4.png
+7z a -t7z ./test_7z/421802_5.7z 421802_5.png
+7z a -t7z ./test_7z/421802_6.7z 421802_6.png
+7z a -t7z ./test_7z/421802_7.7z 421802_7.png
+7z a -t7z ./test_7z/421802_8.7z 421802_8.png
+7z a -t7z ./test_7z/421802_9.7z 421802_9.png
