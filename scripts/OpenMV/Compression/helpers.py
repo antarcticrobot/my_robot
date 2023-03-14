@@ -198,11 +198,44 @@ def my_process_2(img, cnt, prefix, lists):
     image_shrink(img,  prefix, cnt, 3, lists[2])
 
 
-def test_para_for_png(img, num, save_path, cnt, lists, fuc):
+def test_para_for_png(img, num, save_path, cnt, lists, fuc_str):
     prefix = "{0}/{1}_{2}".format(save_path, num, cnt)
     png_name = "{0}.png".format(prefix)
 
     cv2.imwrite(png_name, img, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
     size = os.path.getsize(png_name)
     lists[0].append(size)
-    fuc(img, cnt, prefix, lists)
+
+    if fuc_str == 'do_restrore':
+        do_restrore(prefix+'_restore.bmp', png_name)
+    elif fuc_str == 'my_process_1':
+        my_process_1(img, cnt, prefix, lists)
+    elif fuc_str == 'my_process_2':
+        my_process_2(img, cnt, prefix, lists)
+
+
+def drawHistogram_1(list1, window_x=8, window_y=6):
+    prepare_window(window_x, window_y)
+    # list1 = [20278/x for x in list1]
+    # list1 = [x/20278 for x in list1]
+
+    my_fontsize = 16
+    width = 0.5
+    x = np.arange(len(list1))   # 横坐标范围
+
+    plt.figure()
+    plt.xlabel("png压缩级别", fontsize=my_fontsize)
+    plt.xticks(x, ["raw", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])  # 设置x轴刻度显示值
+    rect1 = plt.bar(x, list1, width=width)
+
+    plt.ylabel("结果图片大小/Byte", fontsize=my_fontsize)
+    print_value(rect1, - 0.55)
+    # plt.ylabel("压缩比", fontsize=my_fontsize)
+    # print_ratio(rect1,- 0.55)
+    # plt.ylim((0,3.5))
+    # plt.ylabel("压缩率/%", fontsize=my_fontsize)
+    # plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
+    # print_percentage(rect1, - 0.55)
+
+    plt.legend()
+    plt.show()

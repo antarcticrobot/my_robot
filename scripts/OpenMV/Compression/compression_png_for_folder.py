@@ -21,7 +21,6 @@ def drawHistogram_1(list1, window_x=8, window_y=6):
     list1 = np.array(list1).mean(axis=1)
     list1 = [x/20278 for x in list1]
 
-
     plt.figure()
     plt.xlabel("png压缩级别", fontsize=my_fontsize)
     plt.xticks(x, ["raw", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])  # 设置x轴刻度显示值
@@ -34,16 +33,15 @@ def drawHistogram_1(list1, window_x=8, window_y=6):
     plt.show()
 
 
+# 这个的保存逻辑和别的test_para_for_png不一样，不要合并
 def test_para_for_png(img, num, save_path, cnt):
     save_name = save_path+str(cnt)+'/'+str(num)+'.png'
     # cv2.imwrite(save_name, img, [cv2.IMWRITE_PNG_COMPRESSION, cnt])
     size = os.path.getsize(save_name)
     record[cnt+1].append(size)
-    # print("png: ", cnt, " ", size)
 
-    # restore_name = save_name+"_"+str(cnt)+"_restore.bmp"
-    # cv2.imwrite(restore_name, cv2.imread(cur_name, 0))
-    # print_size("restore.bmp: ", restore_name)
+    # restore_name = save_path+str(cnt)+'_restore/'+str(num)+'.png'
+    # cv2.imwrite(restore_name, cv2.imread(save_name, 0))
 
 
 if __name__ == '__main__':

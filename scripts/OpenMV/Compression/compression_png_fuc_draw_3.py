@@ -20,7 +20,7 @@ if __name__ == '__main__':
     for num in num_list:
         img = cv2.imread(read_path+str(num)+".bmp", 0)
         tmp = [[], [], []]
-        test_para_for_png(img, num, save_path, 9, tmp, my_process_2)
+        test_para_for_png(img, num, save_path, 9, tmp, 'my_process_2')
         for i in range(3):
             record[i].append(tmp[i])
     strs = ["raw", "div 16", "shrink 3"]
