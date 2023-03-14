@@ -15,12 +15,12 @@ def get_peaks(list1, result_name, window_x=8, window_y=6):
     plt.figure()
     plt.plot(list1)
     peaks = signal.find_peaks(list1, distance=5, prominence=20)
-    for ii in range(len(peaks[0])):
-        plt.plot(peaks[0][ii],
-                 list1[peaks[0][ii]], '*', markersize=10)
+    tmp = peaks[0]
+    for ii in range(len(tmp)):
+        plt.plot(tmp[ii], list1[tmp[ii]], '*', markersize=10)
     plt.savefig(result_name)
-    # plt.show()
-    return len(peaks[0])
+    plt.close()
+    return len(tmp)
 
 
 if __name__ == '__main__':
@@ -41,10 +41,10 @@ if __name__ == '__main__':
         image = cv2.imread(read_path+str(num)+".bmp")
 
         maxs = get_maxs(image)
-        result_name = result_path+str(num)+"_peek.png"
+        result_name = "{0}{1}_peek.png".format(result_path, num)
         peaks_num = get_peaks(maxs, result_name)
         # print('{0}.bmp 有{1}个疑似破损点'.format(num, peaks_num))
 
         max_diff = get_diff(maxs)
-        result_name = result_path+str(num)+"_diff_peek.png"
+        result_name = "{0}{1}_diff_peek.png".format(result_path, num)
         get_peaks(max_diff, result_name)

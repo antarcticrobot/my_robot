@@ -13,7 +13,7 @@ if __name__ == '__main__':
     stepSize = 1
     slice_sets = get_slice(image, stepSize, (1, 120))
 
-    maxs = []
+    maxs = get_maxs(image)
     average = []
     variance = []
     std_deviation = []
@@ -22,7 +22,6 @@ if __name__ == '__main__':
     for img in slice_sets:
         tmp = img.flatten()
         newvalues = [x for x in tmp if x > 0]
-        maxs.append(get_max(newvalues))
         average.append(get_average(newvalues))
         variance.append(get_variance(newvalues))
         std_deviation.append(get_standard_deviation(newvalues))

@@ -132,13 +132,14 @@ def get_diff(arr):
     return ans
 
 
-def draw_without_axis_many(cnt, imgs, strs, coordinates):
-    fig, axes = plt.subplots(1, cnt, figsize=(8, 3), sharex=True, sharey=True,
-                             subplot_kw={'adjustable': 'box'})
-    for i in range(cnt):
-        axes[i].imshow(imgs[i], cmap=plt.cm.gray)
-        axes[i].axis('off')
-        axes[i].set_title(strs[i])
+def draw_without_axis_many(cnt_x, cnt_y, imgs, strs, coordinates):
+    fig, axes = plt.subplots(cnt_x, cnt_y, figsize=(3*cnt_y, 3*cnt_x),
+                             sharex=True, sharey=True, subplot_kw={'adjustable': 'box'})
+    for i in range(cnt_x):
+        for j in range(cnt_y):
+            axes[i*cnt_x+j].imshow(imgs[i], cmap=plt.cm.gray)
+            axes[i*cnt_x+j].set_title(strs[i])
+            axes[i*cnt_x+j].axis('off')
     axes[2].plot(coordinates[:, 1], coordinates[:, 0], 'r.')
     fig.tight_layout()
     plt.show()
