@@ -9,27 +9,6 @@ def map_g_to_temp(g):
     return ((g * (max_temp_in_celsius - min_temp_in_celsius)) / 255.0) + min_temp_in_celsius
 
 
-def cal_for_up_mid_down_of_vent(img, x, y, w, h, fuc):
-    if (h <= 0):
-        return None, None, None
-    if (x > 0):
-        tmpArr = img[y:y+h, 0:x]
-        ans1 = map_g_to_temp(fuc(tmpArr))
-    else:
-        ans1 = None
-    if (w > 0):
-        tmpArr = img[y:y+h, x:x+w]
-        ans2 = map_g_to_temp(fuc(tmpArr))
-    else:
-        ans2 = None
-    if (x+w < 120):
-        tmpArr = img[y:y+h, x+w:120]
-        ans3 = map_g_to_temp(fuc(tmpArr))
-    else:
-        ans3 = None
-    return ans1, ans2, ans3
-
-
 def get_shape_name(CornerNum, w, h):
     if CornerNum == 3:
         objType = "triangle"
@@ -43,3 +22,20 @@ def get_shape_name(CornerNum, w, h):
     else:
         objType = "N"
     return objType
+
+
+def get_full_paths(path):
+    srcPath = path+'/raw/'
+    midPath = path+'/middleFile/'
+    dstPath = path+'/result/'
+    return srcPath, midPath, dstPath
+
+
+def get_paths():
+    paths = []
+    # paths.append('/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17')
+    # paths.append('/home/yr/热成像数据_存档/2022_11_28_1400_tqyb17')
+    # paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_tqyb0')
+    paths.append('/home/yr/热成像数据_存档/2022_11_30_1400_tqyb0')
+    # paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_2_tqyb0')
+    return paths

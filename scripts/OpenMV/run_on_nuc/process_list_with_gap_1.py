@@ -1,12 +1,9 @@
 import cv2
 import matplotlib.pyplot as plt
 from helper import *
-# from find_shapes import *
 
 path = '/home/yr/热成像数据_存档/2022_11_30_1100_tqyb0'
-srcPath = path+'/raw/'
-midPath = path+'/middleFile/'
-dstPath = path+'/result/'
+srcPath, midPath, dstPath = get_full_paths(path)
 listName = path+'/img_lists/wall.txt'
 
 fp = open(listName, 'r')
@@ -22,7 +19,7 @@ collectList.extend(tmpList)
 x_lable = [int(each)/1000 for each in filenames]
 tmpList = ['119245', '162653', '235323', '267425', '305225', '317820', '327104',
            '333771', '352649', '359312', '365131', '372616', '388428', '401730']
-tmpList = [(int(each)/1000 + 6000) for each in tmpList]
+tmpList = [(int(each)/1000 + 5400) for each in tmpList]
 x_lable.extend(tmpList)
 
 fig = plt.figure(figsize=(4, 4), dpi=300)
