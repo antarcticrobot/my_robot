@@ -55,10 +55,6 @@ def get_slice(image, stepSize, windowSize):
     return slice_sets
 
 
-def get_max(records):
-    return max(records)
-
-
 def get_average(records):
     return sum(records) / len(records)
 
@@ -121,7 +117,28 @@ def get_maxs(image, stepSize=1):
     slice_sets = get_slice(image, stepSize, (stepSize, image.shape[0]))
     maxs = []
     for img in slice_sets:
-        newvalues = img.flatten()
-        newvalues = [x for x in newvalues if x > 0]
-        maxs.append(get_max(newvalues))
+        maxs.append(np.array(img).max())
     return maxs
+
+
+def get_diff(arr):
+    ans = [0]
+    for i in range(0, len(arr)-1):
+        if (arr[i+1] >= arr[i]):
+            t = arr[i+1]-arr[i]
+        else:
+            t = -int(arr[i]-arr[i+1])
+        ans.append(t)
+    return ans
+
+
+def draw_without_axis_many(cnt, imgs, strs, coordinates):
+    fig, axes = plt.subplots(1, cnt, figsize=(8, 3), sharex=True, sharey=True,
+                             subplot_kw={'adjustable': 'box'})
+    for i in range(cnt):
+        axes[i].imshow(imgs[i], cmap=plt.cm.gray)
+        axes[i].axis('off')
+        axes[i].set_title(strs[i])
+    axes[2].plot(coordinates[:, 1], coordinates[:, 0], 'r.')
+    fig.tight_layout()
+    plt.show()
