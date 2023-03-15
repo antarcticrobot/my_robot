@@ -7,8 +7,10 @@ from helper import *
 
 
 if __name__ == '__main__':
-    read_path = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/'
-    num_list = [463202, 470328, 489938]
+    # read_path = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/'
+    # num_list = [463202, 470328, 489938]
+    read_path, num_list, result_path = get_para_for_test_pyg()
+
     for num in num_list:
         im = cv2.imread(read_path+str(num)+".bmp", 0)
         # im = im[:, 0:50]

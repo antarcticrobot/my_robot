@@ -1,18 +1,19 @@
 import os
+import cv2
 import math
-import cv2 as cv
 import numpy as np
-
 import matplotlib.pyplot as plt
 
+from scipy import signal
 
-def get_img_num(directionName):
+
+def get_img_num(directionName, suffix='.bmp'):
     num_list = []
     for parent, dirnames, filenames in os.walk(directionName):
         for filename in filenames:
-            if filename.lower().endswith('.bmp'):
+            if filename.lower().endswith(suffix):
                 fname1, fname2 = os.path.split(filename)
-                num_list.append(str.split(fname2, '.bmp')[0])
+                num_list.append(str.split(fname2, suffix)[0])
     return num_list
 
 
@@ -107,7 +108,7 @@ def draw_image(image):
     plt.show()
 
 
-def prepare_window(window_x, window_y):
+def prepare_window(window_x=8, window_y=6):
     plt.rcParams["font.sans-serif"] = ['SimHei']  # 设置字体
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
     plt.rcParams['figure.figsize'] = (window_x, window_y)
@@ -143,3 +144,52 @@ def draw_without_axis_many(cnt_x, cnt_y, imgs, strs, coordinates):
     axes[2].plot(coordinates[:, 1], coordinates[:, 0], 'r.')
     fig.tight_layout()
     plt.show()
+
+
+def get_maximal_minimal(list1, result_name):
+    prepare_window()
+
+    plt.figure()
+    list1 = np.array(list1)
+    plt.plot(list1)
+    extrema_1 = signal.argrelextrema(list1, np.greater, order=1)
+    # plt.plot(extrema_1[0], list1[extrema_1], 'o', markersize=5)
+    extrema_2 = signal.argrelextrema(list1, np.less, order=1)
+    # plt.plot(extrema_2[0], list1[extrema_2], 'o', markersize=5)
+    plt.savefig(result_name)
+    plt.close()
+    return extrema_1, extrema_2
+
+
+def get_peaks(list1, result_name):
+    prepare_window()
+    plt.figure()
+    plt.plot(list1)
+    peaks = signal.find_peaks(list1, distance=5, prominence=20)
+    tmp = peaks[0]
+    for ii in range(len(tmp)):
+        plt.plot(tmp[ii], list1[tmp[ii]], '*', markersize=10)
+    plt.savefig(result_name)
+    plt.close()
+    return len(tmp)
+
+
+def get_para_for_test_pyg():
+    read_path = '/home/yr/catkin_ws/src/my_robot/selected_pic_for_test_pyg/'
+    num_list = get_img_num(read_path)
+    result_path = './mask/grabcut/'
+    return read_path, num_list, result_path
+
+
+def get_para_for_remote_pyg():
+    # 远距离拍摄，先分割
+    read_path = './mask/grabcut/'
+    num_list = ['421802_raw']
+    return read_path, num_list
+
+
+def get_para_for_near_pyg():
+    # 近距离拍摄，无需分割，直接对原始图像处理
+    read_path = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/'
+    num_list = ['463202', '470328']
+    return read_path, num_list

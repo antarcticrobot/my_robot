@@ -9,8 +9,7 @@ from helper import *
 
 
 if __name__ == '__main__':
-    read_path = './mask/grabcut/'
-    num_list = ['421802_raw']
+    read_path, num_list = get_para_for_remote_pyg()
 
     for num in num_list:
         image = cv2.imread(read_path+str(num)+".bmp")
