@@ -146,7 +146,7 @@ def draw_without_axis_many(cnt_x, cnt_y, imgs, strs, coordinates):
     plt.show()
 
 
-def get_maximal_minimal(list1, result_name):
+def get_maximal_minimal(list1, result_name=""):
     prepare_window()
 
     plt.figure()
@@ -156,7 +156,8 @@ def get_maximal_minimal(list1, result_name):
     # plt.plot(extrema_1[0], list1[extrema_1], 'o', markersize=5)
     extrema_2 = signal.argrelextrema(list1, np.less, order=1)
     # plt.plot(extrema_2[0], list1[extrema_2], 'o', markersize=5)
-    plt.savefig(result_name)
+    if(result_name!=""):
+        plt.savefig(result_name)
     plt.close()
     return extrema_1, extrema_2
 
@@ -193,3 +194,8 @@ def get_para_for_near_pyg():
     read_path = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/'
     num_list = ['463202', '470328']
     return read_path, num_list
+
+
+def ylable_without_ticks(ax,ylabelStr):
+    ax.set_xticks([]),ax.set_yticks([])
+    ax.set_ylabel(ylabelStr,fontsize=12)

@@ -22,34 +22,35 @@ def get_pyg(src_name, mask_name, save_name, result_name):
     maskOutput = np.where((mask == cv2.GC_BGD) | (mask == cv2.GC_PR_BGD), 0, 1)
     maskGrabCut = 255 - (maskOutput * 255).astype("uint8")
     imgGrabCut = cv2.bitwise_and(image, image, mask=maskGrabCut)
-    cv2.imwrite(save_name, imgGrabCut)
+    # cv2.imwrite(save_name, imgGrabCut)
 
     plt.figure(figsize=(10, 6))
-    plt.subplot(131), plt.axis('off'), plt.title("输入图像")
+    plt.subplot(131), plt.xticks([]), plt.yticks([]), plt.title("输入图像")
     plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    plt.subplot(132), plt.axis('off'), plt.title("Mask图片")
-    plt.imshow(maskImg, 'gray')
-    plt.subplot(133), plt.axis('off'), plt.title("分割结果")
+    plt.subplot(132),  plt.xticks([]), plt.yticks([]), plt.title("Mask图片")
+    plt.imshow(255-maskImg, 'gray')
+    plt.subplot(133),  plt.xticks([]), plt.yticks([]), plt.title("分割结果")
     plt.imshow(cv2.cvtColor(imgGrabCut, cv2.COLOR_BGR2RGB))
     plt.tight_layout()
-    plt.savefig(result_name)
-    # plt.show()
+    plt.show()
+    # plt.savefig(result_name)
 
 
 if __name__ == '__main__':
     # src_name = '/home/yr/热成像数据_存档/2023_01_03_2110_tqyb4/rainbow/1884624.jpg'
     # mask_name = "./mask/1884624.jpg"
-    # src_name = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/421802.bmp'
-    # mask_name = "./mask/421802.bmp"
+    src_name = '/home/yr/热成像数据_存档_排烟管/外裹纸/2023_02_20_1630_pyg/raw/421802.bmp'
+    mask_name = "./mask/421802.bmp"
+    get_pyg(src_name, mask_name, '', '')
 
-    read_path = '/home/yr/catkin_ws/src/my_robot/selected_pic_for_test_pyg/'
-    mask_path = "./mask/"
-    result_path = mask_path+'/grabcut/'
-    num_list = get_img_num(read_path)
-    for num in num_list:
-        src_name = read_path+str(num)+".bmp"
-        mask_name = mask_path+str(num)+".bmp"
-        save_name = result_path+str(num)+".bmp"
-        result_name = result_path+str(num)+"_cut.png"
+    # read_path = '/home/yr/catkin_ws/src/my_robot/selected_pic_for_test_pyg/'
+    # mask_path = "./mask/"
+    # result_path = mask_path+'/grabcut/'
+    # num_list = get_img_num(read_path)
+    # for num in num_list:
+    #     src_name = read_path+str(num)+".bmp"
+    #     mask_name = mask_path+str(num)+".bmp"
+    #     save_name = result_path+str(num)+".bmp"
+    #     result_name = result_path+str(num)+"_cut.png"
 
-        get_pyg(src_name, mask_name, save_name, result_name)
+    #     get_pyg(src_name, mask_name, save_name, result_name)
