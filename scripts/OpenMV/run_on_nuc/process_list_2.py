@@ -13,26 +13,30 @@ def cal_for_fuc_of_wall(path, fuc):
     collectList = []
     for fileName in filenames:
         img = cv2.imread(srcPath+fileName+'.pgm', 0)
+        img = cv2.blur(img, (3, 3))
         collectList.append(map_g_to_temp(fuc(img)))
-    x_lable = [int(each)/1000 for each in filenames]
+    # minX=int(filenames[0])    
+    # x_lable=[(int(each)-minX+10000)/1000 for each in filenames]
+ 
+    x_lable=[(int(each))/1000 for each in filenames]
     return x_lable, collectList
 
 
 def plot_for_max_of_wall(path, ax1):
-    x_lable, collectList = cal_for_fuc_of_wall(path, np.max)
+    x_lable, collectList=cal_for_fuc_of_wall(path, np.max)
     ax1.plot(x_lable, collectList, marker='o', markersize=2, linewidth=1)
 
 
 if __name__ == "__main__":
-    paths = []
-    paths.append('/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17')
-    paths.append('/home/yr/热成像数据_存档/2022_11_28_1400_tqyb17')
-    paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_tqyb0')
-    paths.append('/home/yr/热成像数据_存档/2022_11_30_1400_tqyb0')
-    paths.append('/home/yr/热成像数据_存档/2022_11_30_1100_2_tqyb0')
+    paths=[]
+    paths.append('/home/yr/热成像数据_存档/通风口无物品/2022_11_28_1100_tqyb17')
+    paths.append('/home/yr/热成像数据_存档/通风口无物品/2022_11_28_1400_tqyb17')
+    paths.append('/home/yr/热成像数据_存档/通风口无物品/2022_11_30_1100_tqyb0')
+    paths.append('/home/yr/热成像数据_存档/通风口无物品/2022_11_30_1400_tqyb0')
+    paths.append('/home/yr/热成像数据_存档/通风口无物品/2022_11_30_1100_2_tqyb0')
 
-    fig = plt.figure(figsize=(4, 4), dpi=300)
-    ax1 = fig.add_subplot(111)
+    fig=plt.figure(figsize=(4, 4), dpi=300)
+    ax1=fig.add_subplot(111)
     for path in paths:
         plot_for_max_of_wall(path, ax1)
     plt.show()

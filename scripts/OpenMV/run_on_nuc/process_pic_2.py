@@ -8,7 +8,7 @@ from helper import map_g_to_temp
 # srcPath = path+'/raw/'
 # fileName = '1325532'
 
-path = '/home/yr/热成像数据_存档/2022_11_30_1400_tqyb0'
+path = '/home/yr/热成像数据_存档/通风口无物品/2022_11_30_1400_tqyb0'
 srcPath = path+'/raw/'
 fileName = '3875510'
 
@@ -23,29 +23,38 @@ cv2.line(img2, (94, 0), (94, 120), (255, 0, 0))
 cv2.imwrite('./withline.jpg', img2)
 
 fig = plt.figure()
+ax0 = fig.add_subplot(221)
+ax0.imshow(cv2.imread('./withline.jpg',0), 'gray')
+plt.title("热成像图像")
+plt.xticks([]),plt.yticks([])
+plt.tight_layout()
 
-ax1 = fig.add_subplot(121)
+ax1 = fig.add_subplot(222)
 # tmp=img[40:41, :].flatten()
-tmp=img[54:55, :].flatten()
-tmp= [map_g_to_temp(x) for x in (tmp)]
-ax1.plot(range(160), tmp, marker='o', label="collectList1")
-plt.title("Vertical center line")
-plt.xlabel("Pixel ordinate")
-plt.ylabel("Temperature/℃")
+tmp = img[54:55, :].flatten()
+tmp = [map_g_to_temp(x) for x in (tmp)]
+ax1.plot( tmp,range(160), marker='o', label="collectList1")
+plt.title("竖直中心线"), plt.xlabel(""), plt.xlabel("温度/℃")
+plt.xlim([0, 40])
+plt.yticks([])
+plt.tight_layout()
 
 
-ax2 = fig.add_subplot(122)
+
+ax2 = fig.add_subplot(223)
+ax2.set_xlabel(""), ax2.set_ylabel("")
+ax2.set_xticks([]),ax2.set_yticks([])
+
+ax3=ax2.twinx()
 # tmp= img[:, 71:72].flatten()
-tmp= img[:, 94:95].flatten()
-tmp= [map_g_to_temp(x) for x in reversed(tmp)]
-ax2.plot(range(120), tmp, marker='o', label="collectList1")
-plt.title("Horizontal center line")
-plt.xlabel("Pixel abscissa")
-plt.ylabel("Temperature/℃")
+tmp = img[:, 94:95].flatten()
+tmp = [map_g_to_temp(x) for x in reversed(tmp)]
+ax3.plot(range(120), tmp, marker='o', label="collectList1")
+ax3.set_title("水平中心线"), ax3.set_xlabel(""), ax3.set_ylabel("温度/℃")
+plt.ylim([5, 35])
 
-
-
-
+ax3.set_xticks([])
+plt.tight_layout()
 
 
 plt.plot()

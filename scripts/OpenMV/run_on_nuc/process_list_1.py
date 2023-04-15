@@ -77,9 +77,9 @@ def process_img(srcPath, dstPath, fileName, lists):
 
 
 if __name__ == "__main__":
-    path = '/home/yr/热成像数据_存档/2022_11_28_1100_tqyb17'
+    path = '/home/yr/热成像数据_存档/通风口无物品/2022_11_28_1100_tqyb17'
     srcPath, midPath, dstPath = get_full_paths(path)
-    listName = './img_lists/2022_11_28_1100_tqyb17/vent.txt'
+    listName = '/home/yr/catkin_ws/src/my_robot/scripts/OpenMV/run_on_nuc/img_lists/2022_11_28_1100_tqyb17/vent.txt'
 
     collectLists = []
     fp = open(listName, 'r')
