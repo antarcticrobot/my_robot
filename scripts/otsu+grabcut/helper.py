@@ -146,30 +146,37 @@ def draw_without_axis_many(cnt_x, cnt_y, imgs, strs, coordinates):
     plt.show()
 
 
-def get_maximal_minimal(list1, result_name=""):
+def get_maximal_minimal(list1, result_name):
     prepare_window()
 
-    plt.figure()
+    plt.figure(figsize=[4,3])
     list1 = np.array(list1)
     plt.plot(list1)
     extrema_1 = signal.argrelextrema(list1, np.greater, order=1)
     # plt.plot(extrema_1[0], list1[extrema_1], 'o', markersize=5)
     extrema_2 = signal.argrelextrema(list1, np.less, order=1)
     # plt.plot(extrema_2[0], list1[extrema_2], 'o', markersize=5)
-    if(result_name!=""):
-        plt.savefig(result_name)
+
+    plt.ylabel('最高温度点的灰度值'),    plt.xlabel('垂直切片位置')
+    plt.ylim([120,220]),    plt.xlim([0,160])
+    plt.tight_layout()
+    plt.savefig(result_name)
     plt.close()
     return extrema_1, extrema_2
 
 
 def get_peaks(list1, result_name):
     prepare_window()
-    plt.figure()
+    plt.figure(figsize=[4,3])
     plt.plot(list1)
-    peaks = signal.find_peaks(list1, distance=5, prominence=20)
+    peaks = signal.find_peaks(list1, distance=5, prominence=10)
     tmp = peaks[0]
     for ii in range(len(tmp)):
-        plt.plot(tmp[ii], list1[tmp[ii]], '*', markersize=10)
+        if(tmp[ii]<100):
+            plt.plot(tmp[ii], list1[tmp[ii]], '*', markersize=7)
+    plt.ylabel('最高温度点的灰度值'),    plt.xlabel('垂直切片位置')
+    plt.ylim([120,220]),    plt.xlim([0,160])
+    plt.tight_layout()
     plt.savefig(result_name)
     plt.close()
     return len(tmp)

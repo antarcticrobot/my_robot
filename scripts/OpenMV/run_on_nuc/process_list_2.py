@@ -10,15 +10,17 @@ def cal_for_fuc_of_wall(path, fuc):
     listName = path+'/img_lists/wall.txt'
     fp = open(listName, 'r')
     filenames = [each.rstrip('\r\n') for each in fp.readlines()]
+    filenames=[int(each) for each in filenames]
+    filenames.sort()
     collectList = []
     for fileName in filenames:
-        img = cv2.imread(srcPath+fileName+'.pgm', 0)
+        img = cv2.imread(srcPath+str(fileName)+'.pgm', 0)
         img = cv2.blur(img, (3, 3))
         collectList.append(map_g_to_temp(fuc(img)))
-    # minX=int(filenames[0])    
-    # x_lable=[(int(each)-minX+10000)/1000 for each in filenames]
- 
-    x_lable=[(int(each))/1000 for each in filenames]
+    minX=int(filenames[0])    
+    x_lable=[(int(each)-minX)/1000+100 for each in filenames] 
+    # x_lable=[(int(each))/1000 for each in filenames]
+
     return x_lable, collectList
 
 

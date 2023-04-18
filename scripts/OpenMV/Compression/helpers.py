@@ -223,7 +223,7 @@ def drawHistogram_1(list1, window_x=8, window_y=6):
     width = 0.5
     x = np.arange(len(list1))   # 横坐标范围
 
-    plt.figure()
+    plt.figure(figsize=[4,3])
     plt.xlabel("png压缩级别", fontsize=my_fontsize)
     plt.xticks(x, ["raw", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9])  # 设置x轴刻度显示值
     rect1 = plt.bar(x, list1, width=width)

@@ -13,32 +13,20 @@ if __name__ == '__main__':
 
     for num in num_list:
         image = cv2.imread(read_path+str(num)+".bmp")
-        # image = cv2.blur(image,(5,5))
+        # image = cv2.blur(image,(3,3))
 
         stepSize = 1
         slice_sets = get_slice(image, stepSize, (1, 120))
         maxs = get_maxs(image)
 
-        plt.figure()
-        plt.subplot(1, 1, 1)
+        # get_maximal_minimal(maxs, '/home/yr/2023_0414/排烟管_最高温度点_带标记.png')
+        # get_maximal_minimal(maxs, '/home/yr/2023_0414/排烟管_最高温度点_带标记_blur5.png')
+        get_maximal_minimal(maxs, '/home/yr/2023_0414/排烟管_最高温度点_blur3.png')
+
+
+        plt.figure(figsize=[4,3])
         plt.plot(maxs)
-        str_name = 'curvefit values'
-
-        xdata = np.array(range(2, 13))
-        popt, pcov = curve_fit(func1, xdata, maxs[2:13], maxfev=40000)
-        plt.plot(xdata, [func1(i, *popt) for i in xdata], 'b', label=str_name)
-        xdata = np.array(range(13, 23))
-        popt, pcov = curve_fit(func1, xdata, maxs[13:23], maxfev=40000)
-        plt.plot(xdata, [func1(i, *popt) for i in xdata], 'b', label=str_name)
-        xdata = np.array(range(23, 33))
-        popt, pcov = curve_fit(func1, xdata, maxs[23:33], maxfev=40000)
-        plt.plot(xdata, [func1(i, *popt) for i in xdata], 'b', label=str_name)
-        xdata = np.array(range(33, 146))
-        popt, pcov = curve_fit(func1, xdata, maxs[33:146], maxfev=40000)
-        plt.plot(xdata, [func1(i, *popt) for i in xdata], 'b', label=str_name)
-
-        # xdata= range(0,150)
-        # popt, pcov = curve_fit(func4, xdata, maxs[:150],maxfev=40000)
-        # plt.plot(xdata, [func4(i, *popt) for i in xdata], 'b', label=str_name)
-
+        plt.ylabel('最高温度点的灰度值'),    plt.xlabel('垂直切片位置')
+        plt.ylim([120,220]),    plt.xlim([0,160])
+        plt.tight_layout()
         plt.show()

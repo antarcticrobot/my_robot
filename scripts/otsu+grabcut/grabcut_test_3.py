@@ -24,7 +24,8 @@ def get_pyg(src_name, mask_name, save_name, result_name, ax, picNum=1):
     maskGrabCut = 255 - (maskOutput * 255).astype("uint8")
     imgGrabCut = cv2.bitwise_and(image, image, mask=maskGrabCut)
 
-    ylable_without_ticks(ax[picNum, 0], "温度精度降低"+str(pow(2,cnt+1))+"倍")
+    # ylable_without_ticks(ax[picNum, 0], "温度精度降低"+str(pow(2,cnt+1))+"倍")
+    ylable_without_ticks(ax[picNum, 0], "分辨率降低"+str(cnt+2)+"倍")
 
     ax[0, 0].set_title("恢复图像")
     ax[picNum, 0].imshow(image, 'gray')
@@ -33,9 +34,13 @@ def get_pyg(src_name, mask_name, save_name, result_name, ax, picNum=1):
     ax[0, 1].set_title("分割结果")
     ax[picNum, 1].imshow(imgGrabCut, 'gray')
 
-    ax[picNum, 2].set_yticks(np.arange(0, 255, step=20))
+    maxs=get_maxs(image)
+    ax[picNum, 2].set_xlim([0,len(maxs)]), ax[picNum, 2].set_ylim([120,220])
+    ax[picNum, 2].set_xticks(range(0,len(maxs)+1,10))
+    ax[picNum, 2].set_yticks(range(120,221,20))
+    ax[picNum, 2].set_ylabel('最高温度点的灰度值'),    ax[picNum, 2].set_xlabel('垂直切片位置')
     ax[0, 2].set_title("破损检测")
-    ax[picNum, 2].plot(np.array(get_maxs(image)))
+    ax[picNum, 2].plot(np.array(maxs))
 
 
 if __name__ == '__main__':
@@ -47,13 +52,14 @@ if __name__ == '__main__':
     read_path = '/home/yr/catkin_ws/src/my_robot/selected_pic_for_test_pyg/'
     mask_path = "./mask/"
     result_path = '/home/yr/2023_0413/'
-    num_list = ['421802_9_div_2_restore', '421802_9_div_4_restore',
-                '421802_9_div_8_restore', '421802_9_div_16_restore']
-    # num_list = ['421802_9_reduce_2_restore', '421802_9_reduce_3_restore',
-    #             '421802_9_reduce_4_restore']
+    # num_list = ['421802_9_div_2_restore', '421802_9_div_4_restore',
+    #             '421802_9_div_8_restore', '421802_9_div_16_restore']
+    num_list = ['421802_9_reduce_2_restore', '421802_9_reduce_3_restore',
+                '421802_9_reduce_4_restore']
 
-    fig = plt.figure(dpi=100, constrained_layout=True)
-    ax = fig.subplots(4, 3)
+    fig = plt.figure(dpi=100,figsize=[6.5,6], constrained_layout=True)
+    # fig = plt.figure(dpi=100,figsize=[5.5,6], constrained_layout=True)
+    ax = fig.subplots(len(num_list), 3)
     cnt = 0
     for num in num_list:
         src_name = read_path+str(num)+".bmp"

@@ -12,17 +12,19 @@ from helper import *
 
 if __name__ == '__main__':
     # read_path, num_list = get_para_for_near_pyg()
-    # read_path, num_list = get_para_for_remote_pyg()
-    read_path, num_list, result_path = get_para_for_test_pyg()
+    read_path, num_list = get_para_for_remote_pyg()
+    result_path='/home/yr/2023_0414/'
+    # read_path, num_list, result_path = get_para_for_test_pyg()
 
     for num in num_list:
         image = cv2.imread(read_path+str(num)+".bmp")
+        image=cv2.blur(image,(3,3))
         
         maxs = get_maxs(image)
         result_name = "{0}{1}_peek.png".format(result_path, num)
         peaks_num = get_peaks(maxs, result_name)
         # print('{0}.bmp 有{1}个疑似破损点'.format(num, peaks_num))
 
-        max_diff = get_diff(maxs)
-        result_name = "{0}{1}_diff_peek.png".format(result_path, num)
-        get_peaks(max_diff, result_name)
+        # max_diff = get_diff(maxs)
+        # result_name = "{0}{1}_diff_peek.png".format(result_path, num)
+        # get_peaks(max_diff, result_name)
